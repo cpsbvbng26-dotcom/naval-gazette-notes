@@ -1,12 +1,16 @@
 {
   "source": {
+    "citation": "JACAR（アジア歴史資料センター）Ref.C12070491000、海軍公報（部内限）號外　昭和十八年九月十一日發令（防衛省防衛研究所）",
+    "citation_style": "アジア歴史資料センターの規定する出典表記。この形のまま引くこと。",
+    "citation_note": "簿冊名・整理番号は未確認のため、件名と所蔵機関名のあいだに未記載。",
+    "jacar_reference_code": "C12070491000",
+    "jacar_permalink": "https://www.jacar.archives.go.jp/das/meta/C12070491000",
     "title_ja": "海軍公報（部内限）號外",
     "title_en": "Naval Gazette (Internal Circulation Only), Extra Edition",
     "promulgated": "1943-09-11",
     "heading_ja": "○昭和十八年九月十一日發令",
-    "holding_institution": "防衛省防衛研究所 / National Institute for Defense Studies, Ministry of Defense",
-    "jacar_reference_code": "C12070491000",
-    "jacar_url": "https://www.jacar.archives.go.jp/aj/meta/listPhoto?REFCODE=C12070491000"
+    "holding_institution_ja": "防衛省防衛研究所",
+    "holding_institution_en": "National Institute for Defense Studies, Ministry of Defense"
   },
   "scope": {
     "section_transcribed": "敍勲四等授瑞寶章 (Fourth Order, Order of the Sacred Treasure)",

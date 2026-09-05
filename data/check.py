@@ -12,6 +12,10 @@
      （引き継ぐ元がない ditto は、翻刻の取りこぼしを意味する）
   6. ditto の行の階級が、直前の printed 行と同じ
   7. 論文が確定させた大谷（2603-25）の階級が、この連鎖から実際に導ける
+  8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
+
+出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
+JSON・CITATION.cff に置いているので、片方だけ直すと食い違います。8 はそれを防ぎます。
 """
 
 import csv
@@ -104,6 +108,40 @@ check("大谷の行に展開された階級と一致する",
       source is not None and otani["rank_ja"] == source["rank_ja"],
       otani["rank_ja"])
 check("したがって 海軍少佐 ではない", otani["rank_ja"] != "海軍少佐", otani["rank_ja"])
+
+print("8. 出典表記")
+CITATION = ("JACAR（アジア歴史資料センター）Ref.C12070491000、"
+            "海軍公報（部内限）號外　昭和十八年九月十一日發令（防衛省防衛研究所）")
+ROOT = os.path.dirname(HERE)
+
+check("JSON の source.citation が規定形式と一致する",
+      doc["source"]["citation"] == CITATION,
+      doc["source"]["citation"])
+
+for label, path in (("README.md", os.path.join(ROOT, "README.md")),
+                    ("data/README.md", os.path.join(HERE, "README.md")),
+                    ("CITATION.cff", os.path.join(ROOT, "CITATION.cff"))):
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    check("%s に同じ出典表記がある" % label, CITATION in text)
+
+check("レコードの恒久リンクが das/meta 形式",
+      doc["source"]["jacar_permalink"]
+      == "https://www.jacar.archives.go.jp/das/meta/C12070491000",
+      doc["source"]["jacar_permalink"])
+
+# 画像ビューアの URL（listPhoto）は恒久リンクではないので、どこにも残っていないこと。
+stale = []
+for dirpath, dirnames, filenames in os.walk(ROOT):
+    dirnames[:] = [d for d in dirnames if d not in (".git", "pdf")]
+    for name in filenames:
+        if not name.endswith((".md", ".json", ".cff", ".py")):
+            continue
+        full = os.path.join(dirpath, name)
+        with open(full, encoding="utf-8") as fh:
+            if "listPhoto" in fh.read() and os.path.abspath(full) != os.path.abspath(__file__):
+                stale.append(os.path.relpath(full, ROOT))
+check("恒久リンクでない listPhoto 形式の URL が残っていない", not stale, ", ".join(stale))
 
 print()
 if failures:

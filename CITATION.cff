@@ -44,12 +44,15 @@ references:
     year: 1943
     month: 9
     institution:
-      name: 防衛省防衛研究所 / National Institute for Defense Studies, Ministry of Defense
+      name: 防衛省防衛研究所
     identifiers:
       - type: other
         value: C12070491000
         description: JACAR レファレンスコード
       - type: url
-        value: "https://www.jacar.archives.go.jp/aj/meta/listPhoto?REFCODE=C12070491000"
-        description: JACAR の公開画像
-    notes: 翻刻の対象となった一次史料。
+        value: "https://www.jacar.archives.go.jp/das/meta/C12070491000"
+        description: JACAR のレコード恒久リンク
+    notes: >-
+      翻刻の対象となった一次史料。アジア歴史資料センターの規定する出典表記は次のとおり。
+      JACAR（アジア歴史資料センター）Ref.C12070491000、海軍公報（部内限）號外　昭和十八年九月十一日發令（防衛省防衛研究所）
+      なお簿冊名・整理番号は未確認のため未記載。
