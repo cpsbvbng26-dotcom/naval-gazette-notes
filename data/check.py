@@ -13,9 +13,15 @@
   6. ditto の行の階級が、直前の printed 行と同じ
   7. 論文が確定させた大谷（2603-25）の階級が、この連鎖から実際に導ける
   8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
+  9. 原資料のスキャン画像が混入していない
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
 JSON・CITATION.cff に置いているので、片方だけ直すと食い違います。8 はそれを防ぎます。
+
+9 は運用上の線です。JACAR の案内では、防衛省防衛研究所提供資料の「資料画像」を出版物等に
+用いる場合、所蔵機関への照会が求められます。このリポジトリはテキストの翻刻と自作の論文
+だけを収めており、原画像は含みません。画像を加えるなら、その前に防衛研究所戦史研究センター
+への確認が要ります。9 は、確認しないまま画像が入ってしまうことを防ぎます。
 """
 
 import csv
@@ -142,6 +148,33 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
             if "listPhoto" in fh.read() and os.path.abspath(full) != os.path.abspath(__file__):
                 stale.append(os.path.relpath(full, ROOT))
 check("恒久リンクでない listPhoto 形式の URL が残っていない", not stale, ", ".join(stale))
+
+print("9. 原資料の画像")
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".gif", ".tif", ".tiff",
+              ".bmp", ".webp", ".jp2", ".heic")
+found_images = []
+for dirpath, dirnames, filenames in os.walk(ROOT):
+    dirnames[:] = [d for d in dirnames if d != ".git"]
+    for name in filenames:
+        if name.lower().endswith(IMAGE_EXTS):
+            found_images.append(os.path.relpath(os.path.join(dirpath, name), ROOT))
+check("画像ファイルが置かれていない", not found_images, ", ".join(found_images))
+
+# PDF に画像が埋め込まれていないか。PDF ライブラリを持ち込まないので、オブジェクト辞書の
+# バイト列を直接見る。辞書は圧縮されないのが通例なので実用上これで captures できるが、
+# オブジェクトストリームに入れられた場合は見逃す。厳密な証明ではなく、うっかりを止める柵。
+pdf_with_images = []
+pdf_dir = os.path.join(ROOT, "pdf")
+if os.path.isdir(pdf_dir):
+    for name in sorted(os.listdir(pdf_dir)):
+        if not name.lower().endswith(".pdf"):
+            continue
+        with open(os.path.join(pdf_dir, name), "rb") as fh:
+            raw = fh.read()
+        if b"/Subtype/Image" in raw or b"/Subtype /Image" in raw:
+            pdf_with_images.append(name)
+check("PDF に画像が埋め込まれていない（辞書のバイト列走査）",
+      not pdf_with_images, ", ".join(pdf_with_images))
 
 print()
 if failures:
