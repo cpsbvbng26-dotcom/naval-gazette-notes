@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+title: Naval Gazette Notes — 海軍公報からの史料ノートとデータ
+message: >-
+  このリポジトリを参照する場合は、以下の情報を用いてください。
+  論文そのものを引用する場合は、references に挙げた DOI を用いてください。
+type: dataset
+authors:
+  - family-names: Nemoto
+    given-names: Takuya
+    orcid: https://orcid.org/0009-0000-1406-0547
+    affiliation: Independent Researcher
+repository-code: https://github.com/cpsbvbng26-dotcom/naval-gazette-notes
+url: https://github.com/cpsbvbng26-dotcom/naval-gazette-notes
+abstract: >-
+  海軍公報（部内限）號外、昭和十八年九月十一日發令の叙勲名簿から、
+  敍勲四等授瑞寶章の受章者10名（假記 2603-18 〜 2603-27）を機械可読な形にしたデータと、
+  その翻刻にもとづく史料ノート。原文の階級欄は「同」による繰り返しを用いるため、
+  各行の階級が原文に書かれていたものか繰り返しから引き継いだものかを rank_source 列で区別している。
+keywords:
+  - Imperial Japanese Navy
+  - Order of the Sacred Treasure
+  - investiture list
+  - JACAR
+  - archival transcription
+  - prosopography
+license: CC-BY-4.0
+date-released: 2026-09-05
+references:
+  - type: article
+    title: >-
+      A Naval Gazette Entry for Lieutenant Otani Tsune (大谷恒): A Note on the
+      Investiture List of 11 September 1943 in the Naval Gazette
+      (Internal Circulation Only), Extra Edition
+    authors:
+      - family-names: Nemoto
+        given-names: Takuya
+        orcid: https://orcid.org/0009-0000-1406-0547
+    year: 2026
+    license: CC-BY-4.0
+    doi: 10.5281/zenodo.22055709
+    notes: Preprint. Not peer-reviewed. このリポジトリのデータは本論文第3節の翻刻にもとづく。
+  - type: generic
+    title: 海軍公報（部内限）號外　昭和十八年九月十一日發令
+    year: 1943
+    month: 9
+    institution:
+      name: 防衛省防衛研究所 / National Institute for Defense Studies, Ministry of Defense
+    identifiers:
+      - type: other
+        value: C12070491000
+        description: JACAR レファレンスコード
+      - type: url
+        value: "https://www.jacar.archives.go.jp/aj/meta/listPhoto?REFCODE=C12070491000"
+        description: JACAR の公開画像
+    notes: 翻刻の対象となった一次史料。

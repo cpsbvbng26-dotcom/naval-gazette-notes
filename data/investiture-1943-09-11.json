@@ -1,0 +1,158 @@
+{
+  "source": {
+    "title_ja": "海軍公報（部内限）號外",
+    "title_en": "Naval Gazette (Internal Circulation Only), Extra Edition",
+    "promulgated": "1943-09-11",
+    "heading_ja": "○昭和十八年九月十一日發令",
+    "holding_institution": "防衛省防衛研究所 / National Institute for Defense Studies, Ministry of Defense",
+    "jacar_reference_code": "C12070491000",
+    "jacar_url": "https://www.jacar.archives.go.jp/aj/meta/listPhoto?REFCODE=C12070491000"
+  },
+  "scope": {
+    "section_transcribed": "敍勲四等授瑞寶章 (Fourth Order, Order of the Sacred Treasure)",
+    "entries_transcribed": 10,
+    "entry_range": "2603-18 – 2603-27",
+    "not_transcribed": [
+      "敍勲三等授瑞寶章 (Third Order), entries 2603-13 – 2603-17. The paper records that the item lists five recipients but does not transcribe their names.",
+      "A further group beginning at 2603-30, below a ruled division on the same image, which constitutes a separate item."
+    ]
+  },
+  "conventions": {
+    "entry_marker": "假記 marks the first entry; 同 (\"ditto\") repeats it for the rest.",
+    "rank_source": "printed = the rank is written out on that line. ditto = the line carries 同 and the rank is carried down from the last printed one.",
+    "readings": "No reading is recorded for any name. The gazette supplies no phonetic gloss. 大谷恒 may be read Otani or Oya, and 恒 as Tsune or Hisashi, among other possibilities; the paper uses \"Otani Tsune\" for convenience only.",
+    "characters": "Traditional forms are kept as printed (國, 德, 鎭, 關). The source glyph for 小西 renders the second character with a radical variant; it is recorded here as 西."
+  },
+  "entries": [
+    {
+      "entry_no": "2603-18",
+      "entry_marker": "假記",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "printed",
+      "name_as_printed": "小西 敏夫",
+      "surname": "小西",
+      "given_name": "敏夫",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-19",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "比良 國清",
+      "surname": "比良",
+      "given_name": "國清",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-20",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "箱山 德太郎",
+      "surname": "箱山",
+      "given_name": "德太郎",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-21",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "安部 一男",
+      "surname": "安部",
+      "given_name": "一男",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-22",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "増田 利章",
+      "surname": "増田",
+      "given_name": "利章",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-23",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "篠田 不可止",
+      "surname": "篠田",
+      "given_name": "不可止",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-24",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "野村 勇",
+      "surname": "野村",
+      "given_name": "勇",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-25",
+      "entry_marker": "同",
+      "rank_ja": "海軍大尉",
+      "rank_en": "Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "大谷 恒",
+      "surname": "大谷",
+      "given_name": "恒",
+      "subheading_ja": null,
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-26",
+      "entry_marker": "同",
+      "rank_ja": "海軍中尉",
+      "rank_en": "Sub-Lieutenant",
+      "rank_source": "printed",
+      "name_as_printed": "石井 丑松",
+      "surname": "石井",
+      "given_name": "丑松",
+      "subheading_ja": "横須賀鎭守府關係",
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    },
+    {
+      "entry_no": "2603-27",
+      "entry_marker": "同",
+      "rank_ja": "海軍中尉",
+      "rank_en": "Sub-Lieutenant",
+      "rank_source": "ditto",
+      "name_as_printed": "細田 義男",
+      "surname": "細田",
+      "given_name": "義男",
+      "subheading_ja": "横須賀鎭守府關係",
+      "order_class": "四等",
+      "decoration": "瑞寶章"
+    }
+  ]
+}
