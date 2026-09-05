@@ -1,5 +1,7 @@
 # Naval Gazette Notes
 
+[![検査](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml/badge.svg)](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml)
+
 海軍公報から一件ずつ史料を翻刻し、**その史料で確定できることと、できないことを分けて記録する**リポジトリです。
 
 いまのところ一件です。1943年9月11日発令の叙勲名簿から、瑞寶章四等の受章者10名。
@@ -69,7 +71,8 @@ DOI [10.5281/zenodo.22055709](https://doi.org/10.5281/zenodo.22055709)
 python3 data/check.py
 ```
 
-標準ライブラリだけで動きます。21 項目を確かめます —— CSV と JSON が全列で一致すること、
+標準ライブラリだけで動きます。**GitHub Actions が push ごとに実行しています。**
+21 項目を確かめます —— CSV と JSON が全列で一致すること、
 假記番号が 2603-18 から欠けなく並ぶこと、`同` の連鎖が破れていないこと（引き継ぐ元のない `ditto` は
 翻刻の取りこぼしを意味します）、**論文第4節(1) の推論をデータの上で実際に辿り直し、
 2603-25 の階級が海軍大尉に行き着くこと**、**出典表記が四箇所で一字一句同じであること**、そして**原資料の画像が混入していないこと**。

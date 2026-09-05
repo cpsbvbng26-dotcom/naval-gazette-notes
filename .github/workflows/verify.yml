@@ -1,0 +1,19 @@
+name: 検査
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: データ・出典表記・原画像の混入
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # 標準ライブラリのみ。pip install は要らない。
+      - run: python3 data/check.py
