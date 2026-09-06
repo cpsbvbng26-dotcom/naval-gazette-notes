@@ -166,7 +166,7 @@ https://github.com/cpsbvbng26-dotcom/naval-gazette-notes、2026年、参照日 �
 
 ## AI の利用
 
-[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?style=for-the-badge&logo=claude&logoColor=white)](https://claude.com/claude-code)
+[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?style=for-the-badge)](https://claude.com/claude-code)
 
 **論文について。** 構成の立案と散文の編集に Claude（Anthropic）を用いています。
 **史料の選択、翻刻の検証、および論旨に関わる判断はすべて著者が行い**、責任も著者にあります。

@@ -39,6 +39,10 @@ INCONSISTENT = [
 # Markdown のバッジ記法の壊れ。![...] の ! が落ちる。
 BADGE_BROKEN = re.compile(r'\[!(?!\[)[^\]]*\]\(https?://[^)]*badge')
 
+# 第三者のロゴは載せない方針。バッジは文字と色だけにする。
+# 商標は各社のもので、使用許諾を得ているわけではないため。
+BADGE_LOGO = re.compile(r'img\.shields\.io/badge/[^)\s"]*[?&]logo=')
+
 SELF = os.path.join('verification', 'check_text.py')
 
 hits = []
@@ -67,6 +71,10 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
                 if BADGE_BROKEN.search(line):
                     hits.append(('バッジ記法', rel, n,
                                  '! または [ が欠けています（[![…](…)](…) の形）', line.strip()[:90]))
+                if BADGE_LOGO.search(line):
+                    hits.append(('第三者のロゴ', rel, n,
+                                 'バッジに logo= が入っています。文字と色だけにしてください',
+                                 line.strip()[:90]))
 
 print('%d ファイルを走査しました。' % scanned)
 if hits:
@@ -76,4 +84,4 @@ if hits:
         print('    %s' % msg)
         print('    > %s\n' % text)
     sys.exit(1)
-print('既知の誤変換・表記の揺れ・バッジ記法の壊れは見つかりませんでした。')
+print('既知の誤変換・表記の揺れ・バッジの壊れ・第三者のロゴは見つかりませんでした。')
