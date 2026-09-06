@@ -16,4 +16,6 @@ jobs:
         with:
           python-version: '3.12'
       # 標準ライブラリのみ。pip install は要らない。
+      - name: 誤変換とバッジ記法
+        run: python3 verification/check_text.py
       - run: python3 data/check.py
