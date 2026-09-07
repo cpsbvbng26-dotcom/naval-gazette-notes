@@ -8,14 +8,17 @@ on:
 
 jobs:
   check:
-    name: データ・出典表記・原画像の混入
+    name: データ・出典表記・原画像の混入 / 正誤表の監査 31 項目
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      # 標準ライブラリのみ。pip install は要らない。
       - name: 誤変換とバッジ記法
         run: python3 verification/check_text.py
       - run: python3 data/check.py
+      # 正誤表の監査だけ pypdf が要る。
+      - run: pip install pypdf
+      - name: 正誤表が紙面からずれていないか（31 項目）
+        run: python3 verification/check_errata.py

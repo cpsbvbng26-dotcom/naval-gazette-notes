@@ -1,0 +1,118 @@
+# 史料ノートの PDF に対する、正誤表の監査の宣言。
+#
+#     python3 verification/check_errata.py
+#
+# 道具は errata-check（MIT、DOI: 10.5281/zenodo.22649054）。
+
+root = ".."
+
+[document]
+path = "ERRATA.md"
+
+[[source]]
+id = "note"
+path = "pdf/naval-gazette-entry-otani-tsune.pdf"
+sha256 = "968046d04b72da47b494a57bbdebfe533e7b977bb1b0db13922b7188fa356f85"
+
+# ------------------------------------------- E1・E2 —— 印字されていないこと
+
+[[quote]]
+source = "note"
+where = "自身の DOI"
+text = "10.5281/zenodo.22055709"
+present = false
+
+[[quote]]
+source = "note"
+where = "DOI の解決 URL"
+text = "doi.org/10.5281"
+present = false
+
+[[quote]]
+source = "note"
+where = "ORCID"
+text = "0009-0000-1406-0547"
+present = false
+
+[[identifier]]
+kind = "orcid"
+value = "0009-0000-1406-0547"
+
+# --------------------------------------- N1 —— 確立しないことを述べている
+
+[[count]]
+source = "note"
+group = "limits"
+expect = 1
+
+[[quote]]
+source = "note"
+group = "limits"
+where = "要旨"
+text = "It does not establish the reading of his name, his unit or posting, his dates of birth and death"
+
+# ------------------------------------------- N2 —— 参照コードと日付の対応
+
+[[quote]]
+source = "note"
+where = "JACAR 参照コード"
+text = "JACAR (Japan Center for Asian Historical Records) Ref. C12070491000"
+in_document = false
+
+[[quote]]
+source = "note"
+where = "西暦の発令日"
+text = "orders promulgated 11 September 1943"
+in_document = false
+
+[[era]]
+source = "note"
+text = "昭和十八年"
+gregorian = 1943
+
+# 仮整理番号
+
+[[quote]]
+source = "note"
+where = "仮整理番号"
+text = "provisional entry no. 2603-25"
+in_document = false
+
+# --------------------------------------- N3 —— 同梱を謳っていないこと
+#
+# Trinity-Infinity の E3（同梱を謳ったスクリプトが存在しない）と同じ誤りを
+# 繰り返していないことの確認。**謳っていない**ので、無いことを検査する。
+
+[[quote]]
+source = "note"
+where = "同梱の記述"
+text = "included with this"
+present = false
+
+[[quote]]
+source = "note"
+where = "同梱の記述"
+text = "distributed together with this PDF"
+present = false
+
+# ------------------------------------------------------------ 未解決の項目
+
+[[open_item]]
+id = "E1"
+heading_pattern = "^## E1 —"
+must_say = ["この項目は解決しません", "10.5281/zenodo.22055709", "C12070491000"]
+must_not_say = ["解決済み"]
+
+[[open_item]]
+id = "E2"
+heading_pattern = "^## E2 —"
+must_say = ["この項目は解決しません"]
+
+[[open_item]]
+id = "N3"
+heading_pattern = "^### N3 —"
+must_say = ["「同梱している」とは書いていません"]
+
+[dates]
+stamp_pattern = "最終更新: (\\d{4})年(\\d{1,2})月(\\d{1,2})日"
+any_pattern = "(\\d{4})年(\\d{1,2})月(\\d{1,2})日"
