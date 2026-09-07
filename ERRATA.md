@@ -81,6 +81,6 @@ E1・E2 は、PDF から文字を取り出して機械で拾いました。
 取り出して突き合わせています。**引用が一字でも合わなくなれば、そこで落ちます。
 
 道具は [errata-check](https://github.com/cpsbvbng26-dotcom/errata-check)
-（MIT、[10.5281/zenodo.22649054](https://doi.org/10.5281/zenodo.22649054)）です。
+（MIT、v0.2.0、[10.5281/zenodo.22649899](https://doi.org/10.5281/zenodo.22649899)）です。
 
 **この文書自体は査読ではありません。**

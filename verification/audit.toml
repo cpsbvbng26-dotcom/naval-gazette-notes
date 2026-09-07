@@ -2,7 +2,7 @@
 #
 #     python3 verification/check_errata.py
 #
-# 道具は errata-check（MIT、DOI: 10.5281/zenodo.22649054）。
+# 道具は errata-check（MIT、v0.2.0、DOI: 10.5281/zenodo.22649899）。
 
 root = ".."
 

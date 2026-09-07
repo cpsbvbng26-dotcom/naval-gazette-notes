@@ -12,7 +12,7 @@
 条件は verification/audit.toml に宣言してあり、当たるのは errata_check.py が
 やる。**判定に推論を使わない。**あるか、無いか、一致するか、しないか。
 
-道具は errata-check（MIT、DOI: 10.5281/zenodo.22649054）。単一ファイルなので
+道具は errata-check（MIT、v0.2.0、DOI: 10.5281/zenodo.22649899）。単一ファイルなので
 ここに写して使っている。
 https://github.com/cpsbvbng26-dotcom/errata-check
 """
