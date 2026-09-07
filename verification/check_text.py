@@ -36,6 +36,15 @@ INCONSISTENT = [
     ('叙勳', '叙勲', '散文は常用字体。史料そのものの引用（敍勲四等授瑞寶章 など）はこの限りではない'),
 ]
 
+# 自分の散文では使わないと決めた自称。
+#
+# **紙面には印字されている。**そこは直せないし、直さない。だが、いま自分が書く
+# 文章では使わない。忘れると自然に戻ってくるので、機械で止める。
+FORBIDDEN = [
+    ('独立研究者', '自分の散文では使わない'),
+    ('Independent Researcher', '同上（英訳）'),
+]
+
 # Markdown のバッジ記法の壊れ。![...] の ! が落ちる。
 BADGE_BROKEN = re.compile(r'\[!(?!\[)[^\]]*\]\(https?://[^)]*badge')
 
@@ -64,6 +73,10 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
                     if wrong in line:
                         hits.append(('誤変換', rel, n,
                                      '「%s」→「%s」  %s' % (wrong, right, note), line.strip()[:90]))
+                for term, note in FORBIDDEN:
+                    if term in line:
+                        hits.append(('使わないと決めた語', rel, n,
+                                     '「%s」  %s' % (term, note), line.strip()[:90]))
                 for wrong, right, note in INCONSISTENT:
                     if wrong in line:
                         hits.append(('表記の揺れ', rel, n,
@@ -84,4 +97,5 @@ if hits:
         print('    %s' % msg)
         print('    > %s\n' % text)
     sys.exit(1)
-print('既知の誤変換・表記の揺れ・バッジの壊れ・第三者のロゴは見つかりませんでした。')
+print('既知の誤変換・表記の揺れ・使わないと決めた語・バッジの壊れ・'
+      '第三者のロゴは見つかりませんでした。')
