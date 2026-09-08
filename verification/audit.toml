@@ -120,23 +120,23 @@ present = false
 [[open_item]]
 id = "E3"
 heading_pattern = "^## E3 —"
-must_say = ["この項目は解決しません", "最も範囲の狭い", "違反していません"]
+must_say = ["この項目は解決しない", "最も範囲の狭い", "違反していない"]
 
 [[open_item]]
 id = "E1"
 heading_pattern = "^## E1 —"
-must_say = ["この項目は解決しません", "10.5281/zenodo.22055709", "C12070491000"]
+must_say = ["この項目は解決しない", "10.5281/zenodo.22055709", "C12070491000"]
 must_not_say = ["解決済み"]
 
 [[open_item]]
 id = "E2"
 heading_pattern = "^## E2 —"
-must_say = ["この項目は解決しません"]
+must_say = ["この項目は解決しない"]
 
 [[open_item]]
 id = "N3"
 heading_pattern = "^### N3 —"
-must_say = ["「同梱している」とは書いていません"]
+must_say = ["「同梱している」とは書いていない"]
 
 [dates]
 stamp_pattern = "最終更新: (\\d{4})年(\\d{1,2})月(\\d{1,2})日"
