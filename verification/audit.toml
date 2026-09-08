@@ -97,6 +97,31 @@ present = false
 
 # ------------------------------------------------------------ 未解決の項目
 
+# ------------------------------ E3 —— 開示文が述べているのは構成と推敲だけ
+
+[[quote]]
+source = "note"
+group = "ai_disclosure"
+where = "AI 開示"
+text = "was used in planning the structure of this note and in editing its prose"
+
+[[quote]]
+source = "note"
+group = "ai_disclosure"
+where = "AI 開示（著者の仕事）"
+text = "The selection of the source, the verification of the transcription, and all judgments as to the substance of the argument were made by the author"
+
+[[quote]]
+source = "note"
+where = "ノート"
+text = "OpenAI"
+present = false
+
+[[open_item]]
+id = "E3"
+heading_pattern = "^## E3 —"
+must_say = ["この項目は解決しません", "最も範囲の狭い", "違反していません"]
+
 [[open_item]]
 id = "E1"
 heading_pattern = "^## E1 —"

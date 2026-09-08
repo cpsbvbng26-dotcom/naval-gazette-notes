@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: データ・出典表記・原画像の混入 / 正誤表の監査 31 項目
+    name: データ・出典表記・原画像の混入 / 正誤表の監査 40 項目
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
