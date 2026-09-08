@@ -2,9 +2,10 @@
 
 [![検査](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml/badge.svg)](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml)
 
-海軍公報から一件ずつ史料を翻刻し、**その史料で確定できることと、できないことを分けて記録する**リポジトリです。
+海軍公報から一件ずつ史料を翻刻し、その史料で確定できることと、できないことを分けて
+記録する。
 
-いまのところ一件です。1943年9月11日発令の叙勲名簿から、瑞寶章四等の受章者10名。
+いまのところ一件である。1943年9月11日発令の叙勲名簿から、瑞寶章四等の受章者 10 名。
 
 ## 論文
 
@@ -169,15 +170,14 @@ https://github.com/cpsbvbng26-dotcom/naval-gazette-notes、2026年、参照日 �
 
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?style=for-the-badge)](https://claude.com/claude-code)
 
-**論文について。** 構成の立案と散文の編集に Claude（Anthropic）を用いています。
-**史料の選択、翻刻の検証、および論旨に関わる判断はすべて著者が行い**、責任も著者にあります。
-詳細は論文末尾の開示文にあります。
+論文について。構成の立案と散文の編集に Claude（Anthropic）を用いた。史料の選択、
+翻刻の検証、論旨に関わる判断はすべて著者が行い、責任も著者にある。詳細は論文末尾の
+開示文にある。
 
-**英訳について。** 史料に書かれている内容の英訳は、**言語モデル（ChatGPT / OpenAI）**が
-行いました。解釈も補足も含みません。**PDF の開示文にはこの記載がありません** —— 紙面は
-Claude による構成と推敲しか述べていないため、凍結された PDF は直せず、
-[ERRATA.md](ERRATA.md) の `E3` に記録しています。当時、自己登録のプレプリントに
-開示義務は無く、規則違反ではありません。
+英訳について。史料に書かれている内容の英訳は、言語モデル（ChatGPT / OpenAI）が行った。
+解釈も補足も含まない。PDF の開示文にこの記載は無い。紙面は Claude による構成と推敲しか
+述べていない。凍結された PDF は直せないので、[ERRATA.md](ERRATA.md) の `E3` に記録した。
+当時、自己登録のプレプリントに開示義務は無く、規則違反ではない。
 
 **このリポジトリについて。** README、`CITATION.cff`、データファイル、および `data/check.py` は
 Claude Code（Anthropic）を用いて作成し、実行しました。**データの内容は論文第3節の翻刻そのもの**で、
