@@ -41,6 +41,8 @@
 
 - `gh` は使えない。GitHub の操作は `mcp__github__*` を使う。
 - **タグの push は 403 で通らない。**Release の作成は利用者の手作業になる。
+- **ブランチの削除も 403 で通らない。**`git push origin --delete` も `:refs/heads/…` も
+  同じ 403 を返す。古いブランチの掃除は利用者の手作業になる。
 - 外に出られるのは GitHub だけ。他のホストは egress proxy が塞いでいる。
 
 ## 書き方
