@@ -141,3 +141,55 @@ must_say = ["「同梱している」とは書いていない"]
 [dates]
 stamp_pattern = "最終更新: (\\d{4})年(\\d{1,2})月(\\d{1,2})日"
 any_pattern = "(\\d{4})年(\\d{1,2})月(\\d{1,2})日"
+
+# ------------------------------------------- E4 —— 四等の英訳が二通り
+#
+# **どちらも印字されている。**片方だけになったら落ちる —— そのときは正誤表を直す番である。
+
+[[quote]]
+source = "note"
+where = "勲章そのもの"
+text = "Order of the Sacred Treasure, Fourth Class"
+
+[[quote]]
+source = "note"
+where = "叙勲の区分"
+text = "Fourth Order"
+
+# ------------------------------------------- E5 —— 表題の読みと、本文の断り
+
+[[quote]]
+source = "note"
+where = "表題が与えている読み"
+text = "Otani Tsune"
+
+[[quote]]
+source = "note"
+where = "読みが立たないという断り"
+text = "It does not establish the reading of his name"
+
+[[quote]]
+source = "note"
+where = "長音符を付けていないこと"
+text = "Ōtani"
+present = false
+
+# ------------------------------------------- E6 —— (通牒各) に訳が無い
+#
+# 記号に訳を添えた三つは印字されており、通牒各 は添えられていない。
+
+[[quote]]
+source = "note"
+where = "同 の訳"
+text = "(\"ditto\")"
+
+[[quote]]
+source = "note"
+where = "故 の訳"
+text = "(\"the late\")"
+
+[[quote]]
+source = "note"
+where = "通牒各 —— 訳が無いまま置かれている"
+text = "(通牒各)"
+
