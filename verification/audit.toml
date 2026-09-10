@@ -193,3 +193,25 @@ source = "note"
 where = "通牒各 —— 訳が無いまま置かれている"
 text = "(通牒各)"
 
+# ------------------------------------------- N5 —— 続柄が書かれていないこと
+#
+# **無いことを確かめる。**紙面に現れたら落ちる —— そのときは正誤表のほうが誤っている。
+
+[[quote]]
+source = "note"
+where = "続柄（英語）"
+text = "great-grandfather"
+present = false
+
+[[quote]]
+source = "note"
+where = "続柄（日本語）"
+text = "曾祖父"
+present = false
+
+[[quote]]
+source = "note"
+where = "血縁を示す語"
+text = "relative"
+present = false
+
