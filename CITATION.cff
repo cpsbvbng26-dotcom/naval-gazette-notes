@@ -2,7 +2,7 @@ cff-version: 1.2.0
 title: Naval Gazette Notes — 海軍公報からの史料ノートとデータ
 message: >-
   このリポジトリを参照する場合は、以下の情報を用いてください。
-  論文そのものを引用する場合は、references に挙げた DOI を用いてください。
+  史料ノートそのものを引用する場合は、references に挙げた DOI を用いてください。
 type: dataset
 authors:
   - family-names: Nemoto
@@ -25,7 +25,7 @@ keywords:
 license: CC-BY-4.0
 date-released: 2026-09-05
 references:
-  - type: article
+  - type: generic
     title: >-
       A Naval Gazette Entry for Lieutenant Otani Tsune (大谷恒): A Note on the
       Investiture List of 11 September 1943 in the Naval Gazette
@@ -38,7 +38,7 @@ references:
     license: CC-BY-4.0
     doi: 10.5281/zenodo.22055709
     url: https://works.hcommons.org/records/q36z2-98e12
-    notes: Preprint. Not peer-reviewed. このリポジトリのデータは本論文第3節の翻刻にもとづく。
+    notes: Preprint. Not peer-reviewed. このリポジトリのデータは本史料ノート第3節の翻刻にもとづく。
   - type: generic
     title: 海軍公報（部内限）號外　昭和十八年九月十一日發令
     year: 1943
