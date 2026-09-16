@@ -38,6 +38,10 @@ references:
     license: CC-BY-4.0
     doi: 10.5281/zenodo.22055709
     url: https://works.hcommons.org/records/q36z2-98e12
+    identifiers:
+      - type: doi
+        value: 10.2139/ssrn.7449338
+        description: SSRN に登録された同一の本文
     notes: Preprint. Not peer-reviewed. このリポジトリのデータは本史料ノート第3節の翻刻にもとづく。
   - type: generic
     title: 海軍公報（部内限）號外　昭和十八年九月十一日發令
