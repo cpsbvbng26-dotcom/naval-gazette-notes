@@ -206,7 +206,7 @@ DOI の書誌も、この読みで登録されています。
 利益相反の申告と同じ性質の情報です。
 
 紙面は凍結されているので直せません。続柄は
-[先祖の公的記録](https://cpsbvbng26-dotcom.github.io/cpsbvbng26-dotcom/lineage.html)に置いました。
+[先祖の公的記録](https://cpsbvbng26-dotcom.github.io/cpsbvbng26-dotcom/lineage.html)に置きました。
 
 ## 見つけ方
 
