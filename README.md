@@ -175,7 +175,7 @@ https://github.com/cpsbvbng26-dotcom/naval-gazette-notes、2026年、参照日 �
 
 機械可読な書誌情報は [CITATION.cff](CITATION.cff) にあります。
 
-## AI の利用
+## 言語モデルの利用
 
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757?style=for-the-badge)](https://claude.com/claude-code)
 
