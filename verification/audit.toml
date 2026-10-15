@@ -102,13 +102,13 @@ present = false
 [[quote]]
 source = "note"
 group = "ai_disclosure"
-where = "AI 開示"
+where = "言語モデル利用の開示"
 text = "was used in planning the structure of this note and in editing its prose"
 
 [[quote]]
 source = "note"
 group = "ai_disclosure"
-where = "AI 開示（著者の仕事）"
+where = "言語モデル利用の開示（著者の仕事）"
 text = "The selection of the source, the verification of the transcription, and all judgments as to the substance of the argument were made by the author"
 
 [[quote]]
