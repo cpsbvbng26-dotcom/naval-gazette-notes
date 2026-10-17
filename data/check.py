@@ -14,7 +14,7 @@
   7. 論文が確定させた大谷（2603-25）の階級が、この連鎖から実際に導ける
   8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
   9. 原資料のスキャン画像が混入していない
- 10. README の「史料の外にあるもの」が、家伝を史料と混ぜていない
+ 10. README の「史料の外にあるもの」が、報道と家伝を史料と混ぜていない
  11. README が名乗る項目数が、実際に確かめた数と合う
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
@@ -189,8 +189,24 @@ with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
 m = re.search(r"^## 史料の外にあるもの\n(.*?)(?=^## )", readme, re.S | re.M)
 outside = m.group(1) if m else ""
 check("README に「史料の外にあるもの」の節がある", bool(outside))
-check("その節が、どれも史料に当たっていないと書いている",
-      "どれも史料には当たっていません" in outside)
+check("その節が、どれも一次史料に当たっていないと書いている",
+      "どれも一次史料には当たっていません" in outside)
+
+# 報道で分かったことは、行ごとに根拠を持つ。根拠の欄が空の行は、出どころの無い事実になる。
+news = re.search(r"### 報道と照会で分かったこと\n(.*?)(?=^### |\Z)", outside, re.S | re.M)
+news_text = news.group(1) if news else ""
+news_rows = [r for r in re.findall(r"^\| ([^|]+?) \| ([^|]+?) \| ([^|]*?) \|$", news_text, re.M)
+             if r[0] not in ("事項", "---")]
+check("報道の表の全行に根拠がある",
+      bool(news_rows) and all(r[2].strip() for r in news_rows),
+      "%d 行" % len(news_rows) if news_rows else "表が読めない")
+check("掲載日と放送日を確かめていないと書いている",
+      "記事の掲載日と、番組の放送日は確かめていません" in news_text)
+
+# 少佐は報道の側へ移した。家伝の側にも残すと、根拠が二つあるように読める。
+lore = re.search(r"### 家伝\n(.*?)(?=^### |\Z)", outside, re.S | re.M)
+check("最終階級が、家伝と報道の両方に置かれていない",
+      bool(lore) and "少佐" not in lore.group(1) and any(r[0] == "最終階級" for r in news_rows))
 check("家にあった物の名は、現物も勲記も確かめていないと書いている",
       "現物も勲記も確かめていません" in outside)
 
