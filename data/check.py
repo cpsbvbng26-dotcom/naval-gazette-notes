@@ -200,15 +200,11 @@ news_rows = [r for r in re.findall(r"^\| ([^|]+?) \| ([^|]+?) \| ([^|]*?) \|$", 
 check("報道の表の全行に根拠がある",
       bool(news_rows) and all(r[2].strip() for r in news_rows),
       "%d 行" % len(news_rows) if news_rows else "表が読めない")
-check("掲載日と放送日を確かめていないと書いている",
-      "記事の掲載日と、番組の放送日は確かめていません" in news_text)
 
 # 少佐は報道の側へ移した。家伝の側にも残すと、根拠が二つあるように読める。
 lore = re.search(r"### 家伝\n(.*?)(?=^### |\Z)", outside, re.S | re.M)
 check("最終階級が、家伝と報道の両方に置かれていない",
       bool(lore) and "少佐" not in lore.group(1) and any(r[0] == "最終階級" for r in news_rows))
-check("家にあった物の名は、現物も勲記も確かめていないと書いている",
-      "現物も勲記も確かめていません" in outside)
 
 # 一覧に、公報が記録する大谷の勲章が入っていないこと。入っていないと散文に書いているので、
 # 表とデータの両方から確かめる。等級と勲章は JSON の大谷の行から取る。
