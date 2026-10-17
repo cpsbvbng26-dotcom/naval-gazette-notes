@@ -14,6 +14,8 @@
   7. 論文が確定させた大谷（2603-25）の階級が、この連鎖から実際に導ける
   8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
   9. 原資料のスキャン画像が混入していない
+ 10. README の「史料の外にあるもの」が、家伝を史料と混ぜていない
+ 11. README が名乗る項目数が、実際に確かめた数と合う
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
 JSON・CITATION.cff に置いているので、片方だけ直すと食い違います。8 はそれを防ぎます。
@@ -37,10 +39,12 @@ COLUMNS = [
 ]
 
 failures = []
+checked = []
 
 
 def check(label, ok, detail=""):
     print(("  OK   " if ok else "  FAIL ") + label + (" — " + detail if detail else ""))
+    checked.append(label)
     if not ok:
         failures.append(label)
 
@@ -175,6 +179,43 @@ if os.path.isdir(pdf_dir):
             pdf_with_images.append(name)
 check("PDF に画像が埋め込まれていない（辞書のバイト列走査）",
       not pdf_with_images, ", ".join(pdf_with_images))
+
+print("10. 史料の外にあるもの")
+# 家に伝わることと、家にあった物は、史料に当たっていない。確かめたことと同じ書き方を
+# しないよう、節を分けている。分けたことを、ここで固める。
+import re
+with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+    readme = fh.read()
+m = re.search(r"^## 史料の外にあるもの\n(.*?)(?=^## )", readme, re.S | re.M)
+outside = m.group(1) if m else ""
+check("README に「史料の外にあるもの」の節がある", bool(outside))
+check("その節が、どれも史料に当たっていないと書いている",
+      "どれも史料には当たっていません" in outside)
+check("家にあった物の名は、現物も勲記も確かめていないと書いている",
+      "現物も勲記も確かめていません" in outside)
+
+# 一覧に、公報が記録する大谷の勲章が入っていないこと。入っていないと散文に書いているので、
+# 表とデータの両方から確かめる。等級と勲章は JSON の大谷の行から取る。
+held = re.search(r"### 親族の家にあった勲章と記章\n(.*?)(?=^### |\Z)", outside, re.S | re.M)
+held_rows = re.findall(r"^\| ([^|]+?) \| \d+ \|$", held.group(1) if held else "", re.M)
+recorded = otani["order_class"] + otani["decoration"]          # 四等瑞寶章
+recorded_modern = "勲" + otani["order_class"] + otani["decoration"].replace("寶", "宝")
+check("一覧に、公報が記録する大谷の勲章（%s）が入っていない" % recorded,
+      bool(held_rows) and all(recorded_modern not in r and recorded not in r for r in held_rows),
+      " / ".join(held_rows) if held_rows else "一覧が読めない")
+
+# 存命の人は「両親」という語まで（CLAUDE.md の決めごと 10）。家の物の話は、
+# 誰か一人を指す語に寄りやすい。節の中に、それを置かない。
+check("その節に、存命の誰か一人を指す語（父・母）が無い",
+      bool(outside) and not re.search(r"[父母]", outside.replace("祖父", "")),
+      "".join(sorted(set(re.findall(r".?[父母].?", outside)))))
+
+print("11. 名乗る項目数")
+claimed = re.search(r"(\d+) 項目を確かめる", readme)
+total = len(checked) + 1
+check("README が名乗る項目数が実際と合う",
+      claimed is not None and int(claimed.group(1)) == total,
+      "名乗り %s / 実際 %d" % (claimed.group(1) if claimed else "無い", total))
 
 print()
 if failures:
