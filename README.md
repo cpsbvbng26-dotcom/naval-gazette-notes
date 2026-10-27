@@ -250,5 +250,5 @@ Claude Code（Anthropic）を用いて作成し、実行しました。**デー�
 ## 著者
 
 根本卓哉（Takuya Nemoto）
-[プロフィール](https://cpsbvbng26-dotcom.github.io/cpsbvbng26-dotcom/) ｜
+[プロフィール](https://cpsbvbng26-dotcom.vercel.app/) ｜
 [ORCID](https://orcid.org/0009-0000-1406-0547)
