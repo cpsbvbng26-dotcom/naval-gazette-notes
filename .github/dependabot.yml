@@ -1,0 +1,7 @@
+# GitHub Actions の版の更新を知らせる。GitHub の無料の機能で、PR を開くだけ。マージは検査が通ってから行う。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
