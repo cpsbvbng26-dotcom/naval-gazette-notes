@@ -1,0 +1,29 @@
+{
+  "title": "Naval Gazette Notes — 海軍公報からの史料ノートとデータ",
+  "description": "<p>海軍公報（部内限）號外、昭和十八年九月十一日發令の叙勲名簿から、敍勲四等授瑞寶章の受章者10名（假記 2603-18 〜 2603-27）を機械可読な形にしたデータと、その翻刻にもとづく史料ノートを収めたリポジトリの保存版です。原文の階級欄は「同」による繰り返しを用いるため、各行の階級が原文に書かれていたものか、繰り返しから引き継いだものかを rank_source 列で区別しています。</p><p>この記録はリポジトリそのもの（データ、凍結した PDF、正誤表、検査）です。史料ノートは自分の DOI を持ちます。史料ノートを引くときは、関連する識別子に挙げた DOI を使います。</p><p>This record is the repository: the data, the frozen PDF of the note, the errata and the checks. The note has its own DOI, listed under related identifiers; cite the note by that DOI, not by this record.</p>",
+  "upload_type": "dataset",
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Nemoto, Takuya",
+      "orcid": "0009-0000-1406-0547"
+    }
+  ],
+  "keywords": [
+    "Imperial Japanese Navy",
+    "Order of the Sacred Treasure",
+    "investiture list",
+    "JACAR",
+    "archival transcription",
+    "prosopography"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.22055709",
+      "relation": "isSupplementTo",
+      "scheme": "doi"
+    }
+  ],
+  "notes": "The repository was written with Claude Code (Anthropic) at the author's request. The author reviewed it and is responsible for it. Claude is not an author. The texts and the data are CC BY 4.0; the code is MIT (LICENSE-CODE)."
+}
