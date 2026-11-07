@@ -54,6 +54,14 @@ check("原資料の画像を同梱していない",
       not [f for f in os.listdir(ROOT) if f.lower().endswith((".jpg", ".jpeg", ".tif", ".tiff"))],
       "転載には防衛省防衛研究所への確認が要る")
 
+# Zenodo が版を出したときに与えた DOI（DataCite：24034131 が v1.0.0 で、24034130 の版である）。
+_cff = open(os.path.join(ROOT, "CITATION.cff"), encoding="utf-8").read()
+_readme = open(os.path.join(ROOT, "README.md"), encoding="utf-8").read()
+check("CITATION.cff と README が、このリポジトリの版 1.0.0 の DOI とすべての版の DOI を挙げる",
+      all(('value: "%s"' % d) in _cff and ("(https://doi.org/%s)" % d) in _readme
+          for d in ("10.5281/zenodo.24034131", "10.5281/zenodo.24034130"))
+      and 'doi: "10.5281/zenodo.24034130"' in _cff and 'version: "1.0.0"' in _cff)
+
 passed = sum(r.ok for r in results) + sum(1 for _, ok, _ in extra if ok)
 failed = [r.label for r in results if not r.ok] + [l for l, ok, _ in extra if not ok]
 

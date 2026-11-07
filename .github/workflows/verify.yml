@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: データ・出典表記・原画像の混入 / 正誤表の監査 58 項目
+    name: データ・出典表記・原画像の混入 / 正誤表の監査 59 項目
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,5 +20,5 @@ jobs:
       - run: python3 data/check.py
       # 正誤表の監査だけ pypdf が要る。
       - run: pip install pypdf
-      - name: 正誤表が紙面からずれていないか（31 項目）
+      - name: 正誤表が紙面からずれていないか（59 項目）
         run: python3 verification/check_errata.py

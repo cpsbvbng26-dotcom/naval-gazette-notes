@@ -23,7 +23,16 @@ keywords:
   - archival transcription
   - prosopography
 license: CC-BY-4.0
-date-released: 2026-09-05
+version: "1.0.0"
+date-released: "2026-11-07"
+doi: "10.5281/zenodo.24034130"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24034130"
+    description: このリポジトリ（データ）のすべての版。いちばん新しい版を指す
+  - type: doi
+    value: "10.5281/zenodo.24034131"
+    description: このリポジトリ（データ）の版 1.0.0
 references:
   - type: generic
     title: >-
