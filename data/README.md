@@ -2,6 +2,9 @@
 
 `investiture-1943-09-11.csv` と `investiture-1943-09-11.json` は同じ 10 件を収めています。
 CSV は表計算ソフト向け、JSON は出典と凡例を同梱した形です。
+`datapackage.json` が、CSV の列の型と制約と出典を、機械が読める形（Frictionless の Data Package）で述べています。
+
+このデータに名が出るのは、1943年の公報に印字された受章者だけです。存命の人を書き足すことはしません。大谷恒のほかの受章者の生没は、確かめていません。
 
 ## 列の定義
 
@@ -42,6 +45,36 @@ CSV と JSON が同じことを言っているか、假記番号が連番か、`
 そして**論文第4節(1) の推論をデータの上で辿り直して 2603-25 が海軍大尉に行き着くか**を確かめます。
 標準ライブラリのみで動きます。
 
+## 使い方の例
+
+標準ライブラリだけで動きます。全件と、階級ごとの件数と、`rank_source` ごとの件数を数え、2603-25 の行を出します。
+
+```python
+#!/usr/bin/env python3
+"""investiture-1943-09-11.csv を読んで数える例。標準ライブラリだけで動く。
+
+    python3 data/example.py
+"""
+
+import collections
+import csv
+import os
+
+path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "investiture-1943-09-11.csv")
+with open(path, encoding="utf-8", newline="") as fh:
+    rows = list(csv.DictReader(fh))
+
+print("全件", len(rows))
+for rank, n in collections.Counter(r["rank_ja"] for r in rows).most_common():
+    print(rank, n)
+for source, n in collections.Counter(r["rank_source"] for r in rows).most_common():
+    print(source, n)
+otani = next(r for r in rows if r["entry_no"] == "2603-25")
+print(otani["entry_no"], otani["name_as_printed"], otani["rank_ja"], otani["rank_source"])
+```
+
+この例は [`example.py`](example.py) と一字一句同じです。`check.py` が、二つが同じであることと、走らせた結果が CSV の中身と合うことを確かめます。
+
 ## 記録していないもの
 
 **読み（振り仮名・ローマ字）** —— 公報に振り仮名がないため、10件のいずれについても記録していません。
@@ -75,8 +108,8 @@ JACAR（アジア歴史資料センター）Ref.C12070491000、海軍公報（�
 ```
 
 アジア歴史資料センターの規定する出典表記の形式です。書き換えずにこの形のまま引いてください。
-同じ文字列がリポジトリの README、`investiture-1943-09-11.json` の `source.citation`、`CITATION.cff` にもあり、
-`check.py` が四箇所の一致を確かめています。経緯と未確認の箇所は
+同じ文字列がリポジトリの README、`investiture-1943-09-11.json` の `source.citation`、`CITATION.cff`、
+`datapackage.json` の `sources` にもあり、`check.py` が五箇所の一致を確かめています。経緯と未確認の箇所は
 [リポジトリの README](../README.md#出典) を参照してください。
 
 翻刻は JACAR 公開画像の目視による確認にもとづきます。
