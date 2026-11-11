@@ -1,0 +1,50 @@
+name: 誤りの知らせ / Report an error
+description: 公開したものの誤りを知らせる / Report an error in something published here
+title: "誤り: "
+labels: [erratum]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        日本語でも英語でも書けます。issue は公開されます。個人の情報や、公開していない原稿は載せない形にしています。
+        安全の問題は、この様式ではなく SECURITY.md の入口で受けます。
+        Japanese or English. Issues are public, so personal data and unpublished manuscripts are kept out.
+        Security issues go through SECURITY.md, not this form.
+  - type: input
+    id: where
+    attributes:
+      label: どこか / Where
+      description: ファイル、頁の URL、論文の節や頁、DOI のどれか / A file, a page URL, a section or page of a paper, or a DOI
+    validations:
+      required: true
+  - type: textarea
+    id: printed
+    attributes:
+      label: 書いてあること / What it says
+      description: 書いてあるとおりに写します / Copied as printed
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: 正しいと考えること / What it should say
+    validations:
+      required: true
+  - type: textarea
+    id: basis
+    attributes:
+      label: 根拠 / Basis
+      description: 一次資料、走らせたコマンドと出力、文献など。外から確かめられる形で / A primary source, a command and its output, or a reference that others can check
+    validations:
+      required: true
+  - type: dropdown
+    id: found_by
+    attributes:
+      label: 見つけた人 / Found by
+      description: 正誤表の「見つけた人」の欄にそのまま入ります / Goes into the errata's "found by" field as it is
+      options:
+        - 読者 / Reader
+        - 著者 / Author
+        - 機械の検査 / Automated check
+    validations:
+      required: true
