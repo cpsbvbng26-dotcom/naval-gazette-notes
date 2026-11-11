@@ -22,7 +22,7 @@
  16. 典拠の所在の表が、リポジトリに現れる参照コードを過不足なく挙げる
  17. 年表の日付が、リポジトリのほかの箇所にすでに書いてある
  18. 読む順と、存命の人を書き足さない線が、頁の冒頭にある
- 19. README の「検査の結果」の正誤表の監査の数が、走らせた数と合う
+ 19. README の「検査の結果」と CI の題の、正誤表の監査の数が、走らせた数と合う
  11. README が名乗る項目数が、実際に確かめた数と合う（最後に数える）
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
@@ -413,9 +413,13 @@ try:
 except Exception as exc:                                    # noqa: BLE001
     n_errata, why = None, str(exc)
 m = re.search(r"^\| `verification/check_errata\.py` \| (\d+) \| すべて通る \|$", readme, re.M)
-check("README の表の check_errata.py の数が、走らせた数と合う（pypdf が要る）",
-      m is not None and n_errata is not None and int(m.group(1)) == n_errata,
-      "名乗り %s / 実際 %s %s" % (m.group(1) if m else "無い", n_errata, why))
+# CI の題も同じ数を名乗る。項目を増やさず、ここに畳む（data/check.py の数は README と他の頁が名乗っている）。
+with open(os.path.join(ROOT, ".github", "workflows", "verify.yml"), encoding="utf-8") as fh:
+    ci = [int(x) for x in re.findall(r"正誤表の監査 (\d+) 項目", fh.read())]
+said_errata = ([int(m.group(1))] if m else []) + ci
+check("README の表と CI の題の check_errata.py の数が、走らせた数と合う（pypdf が要る）",
+      m is not None and len(ci) > 0 and n_errata is not None and set(said_errata) == {n_errata},
+      "名乗り %s / 実際 %s %s" % (",".join(map(str, said_errata)) or "無い", n_errata, why))
 
 print("11. 名乗る項目数")
 claimed = re.search(r"(\d+) 項目を確かめる", readme)

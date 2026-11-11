@@ -143,6 +143,7 @@ python3 verification/check_text.py    # 誤変換
 python3 data/check.py                 # データ・出典表記・典拠・年表・検査の結果（要: pypdf）
 python3 verification/check_errata.py  # 正誤表の監査 59 項目
 python3 data/example.py               # CSV を読んで数える例
+python3 verification/check_hygiene.py   # 依存・権限・固定・秘密・要旨・散文の数（設定は verification/hygiene.toml）
 ```
 
 `data/check.py` の数は README が名乗り、`data/check.py` 自身が突き合わせる。
