@@ -140,9 +140,17 @@
 
 ```
 python3 verification/check_text.py    # 誤変換
-python3 data/check.py
+python3 data/check.py                 # データ・出典表記・典拠・年表・検査の結果（要: pypdf）
 python3 verification/check_errata.py  # 正誤表の監査 59 項目
+python3 data/example.py               # CSV を読んで数える例
 ```
+
+`data/check.py` の数は README が名乗り、`data/check.py` 自身が突き合わせる。
+`data/datapackage.json` は手で書いたもので、`data/check.py` が CSV の列・値と突き合わせる。
+出典表記は五箇所にある（README・data/README.md・JSON・CITATION.cff・datapackage.json）。
+一つを直すときは全部直す。
+
+年表には、リポジトリにすでに書いてある日付だけを置く。新しい日付を年表から書き始めない。
 
 **JACAR の原資料画像を追加しない**。防衛省防衛研究所 戦史研究センターへの
 連絡が先である。
