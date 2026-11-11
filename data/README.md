@@ -75,8 +75,8 @@ JACAR（アジア歴史資料センター）Ref.C12070491000、海軍公報（�
 ```
 
 アジア歴史資料センターの規定する出典表記の形式です。書き換えずにこの形のまま引いてください。
-同じ文字列が `investiture-1943-09-11.json` の `source.citation` と `CITATION.cff` にもあり、
-`check.py` が三箇所の一致を確かめています。経緯と未確認の箇所は
+同じ文字列がリポジトリの README、`investiture-1943-09-11.json` の `source.citation`、`CITATION.cff` にもあり、
+`check.py` が四箇所の一致を確かめています。経緯と未確認の箇所は
 [リポジトリの README](../README.md#出典) を参照してください。
 
 翻刻は JACAR 公開画像の目視による確認にもとづきます。
