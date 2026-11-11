@@ -17,8 +17,9 @@ jobs:
           python-version: '3.12'
       - name: 誤変換とバッジ記法
         run: python3 verification/check_text.py
-      - run: python3 data/check.py
-      # 正誤表の監査だけ pypdf が要る。
+      # 正誤表の監査に pypdf が要る。data/check.py も「検査の結果」の表を確かめるために
+      # 正誤表の監査を走らせるので、先に入れる。
       - run: pip install pypdf
+      - run: python3 data/check.py
       - name: 正誤表が紙面からずれていないか（59 項目）
         run: python3 verification/check_errata.py
