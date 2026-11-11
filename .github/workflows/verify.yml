@@ -6,13 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+# 読むだけで足りる。書き込みの権限は、要る仕事にだけ名指しで渡す。
+permissions:
+  contents: read
+
 jobs:
   check:
     name: データ・出典表記・原画像の混入 / 正誤表の監査 59 項目
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
       - name: 誤変換とバッジ記法

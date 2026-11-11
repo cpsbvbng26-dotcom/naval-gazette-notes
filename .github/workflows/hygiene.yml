@@ -1,0 +1,26 @@
+name: 依存・権限・固定・秘密の走査
+
+# 外部のパッケージ、ワークフローの権限、アクションの固定、秘密の鍵と連絡先の混入を見る。
+# push と PR のほか、週に一度、何も変えていなくても回す。混入は変更の無い日にも見つかりうる。
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '46 4 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    name: 依存・権限・固定・秘密の走査
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      # Node.js は実行環境に入っている。JavaScript の require を組み込みと突き合わせるのに使う。
+      - run: python3 verification/check_hygiene.py
