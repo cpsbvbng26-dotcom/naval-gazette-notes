@@ -128,12 +128,27 @@ check("JSON の source.citation が規定形式と一致する",
       doc["source"]["citation"] == CITATION,
       doc["source"]["citation"])
 
-for label, path in (("README.md", os.path.join(ROOT, "README.md")),
-                    ("data/README.md", os.path.join(HERE, "README.md")),
-                    ("CITATION.cff", os.path.join(ROOT, "CITATION.cff"))):
+CITATION_FILES = (("README.md", os.path.join(ROOT, "README.md")),
+                  ("data/README.md", os.path.join(HERE, "README.md")),
+                  ("CITATION.cff", os.path.join(ROOT, "CITATION.cff")))
+for label, path in CITATION_FILES:
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     check("%s に同じ出典表記がある" % label, CITATION in text)
+
+# 散文が名乗る箇所の数（「四箇所」）が、ここで確かめている数（JSON と上の三つ）と合うこと。
+# 一度、README が「三箇所」と書いたまま data/README.md が足されていた。見出しの行は数えない。
+import re
+KANJI = "〇一二三四五六七八九"
+places = 1 + len(CITATION_FILES)
+said = []
+for label, path in CITATION_FILES[:2]:
+    with open(path, encoding="utf-8") as fh:
+        prose = "\n".join(l for l in fh.read().splitlines() if not l.startswith("#"))
+    said += ["%s: %s箇所" % (label, n) for n in re.findall(r"([一二三四五六七八九])箇所", prose)]
+check("散文が名乗る出典表記の箇所の数が、確かめている数（%s箇所）と合う" % KANJI[places],
+      bool(said) and all(s.endswith(KANJI[places] + "箇所") for s in said),
+      " / ".join(said) if said else "名乗りが無い")
 
 check("レコードの恒久リンクが das/meta 形式",
       doc["source"]["jacar_permalink"]
