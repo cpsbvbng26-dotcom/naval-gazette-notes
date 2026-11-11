@@ -320,6 +320,12 @@ Claude Code（Anthropic）を用いて作成し、実行しました。**デー�
 新たな読み取りは加えていません。`rank_source` 列による「同」の解決は、史料ノート第4節(1) の論証を
 そのまま列にしたものです。検査スクリプトが報告する結果は、実行して得たものです。
 
+| 道具 | 使ったところ | 確かめた人 |
+| --- | --- | --- |
+| Claude（Anthropic） | 史料ノートの構成の立案と散文の編集（史料ノート末尾の開示文） | 著者（史料の選択、翻刻の検証、論旨の判断） |
+| ChatGPT（OpenAI） | 史料に書かれている内容の英訳（ERRATA.md の E3） | 記録がありません |
+| Claude Code（Anthropic） | README、`CITATION.cff`、データファイル、`data/check.py` | 著者と、`data/check.py` ほかの検査 |
+
 ## 著者
 
 根本卓哉（Takuya Nemoto）
