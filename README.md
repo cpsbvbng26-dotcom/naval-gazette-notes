@@ -66,6 +66,8 @@ DOI [10.5281/zenodo.22055709](https://doi.org/10.5281/zenodo.22055709)
 Knowledge Commons [レコード](https://works.hcommons.org/records/q36z2-98e12) —— 同じ史料ノートの別の所在。引用は Zenodo の DOI を正とします。
 SSRN [10.2139/ssrn.7449338](https://doi.org/10.2139/ssrn.7449338) —— SSRN に登録された同一の本文。
 
+Zenodo の同じ記録には、前の版があります。前の版の題は A Minor Officer in the Imperial Japanese Navy でした。DOI は [10.5281/zenodo.18525532](https://doi.org/10.5281/zenodo.18525532)（2026年2月8日）と [10.5281/zenodo.22055553](https://doi.org/10.5281/zenodo.22055553)（2026年8月22日）です。引くのは現行の 10.5281/zenodo.22055709 です。すべての版に共通する DOI は [10.5281/zenodo.18525531](https://doi.org/10.5281/zenodo.18525531) です。どの版もこの DOI の版であることを、2026年11月11日に DataCite の記録で確かめました。
+
 海軍の下級・中級士官は、自分についての伝記的な記録をほとんど残しません。この階層の人物についての情報は、
 散在する公報の記載に頼ることになります。この史料ノートが扱うのは、そのうちの一件です。
 
