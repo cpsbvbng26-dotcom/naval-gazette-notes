@@ -1,0 +1,52 @@
+name: このデータを使った
+description: 翻刻のデータを使ったことを知らせる。使われた記録として残す
+title: "使った: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        翻刻のデータ（`data/investiture-1943-09-11.csv`・`data/investiture-1943-09-11.json`）や史料ノートを使ったことを知らせる様式です。
+        知らせは、使われた記録として残します。誤りの知らせは、この様式ではなく通常の issue で受けます。
+        データを引くときは、一次史料の出典表記を添えます。データは翻刻であって、原資料の代わりではありません。
+        この issue は公開されます。連絡先や、公開したくない情報は書かないでおく形にしています。
+  - type: input
+    id: version
+    attributes:
+      label: 使った版
+      description: Zenodo の版の DOI か、GitHub のコミット。分からなければ空欄で構いません
+      placeholder: 10.5281/zenodo.24034131
+    validations:
+      required: false
+  - type: dropdown
+    id: files
+    attributes:
+      label: 使ったファイル
+      multiple: true
+      options:
+        - data/investiture-1943-09-11.csv
+        - data/investiture-1943-09-11.json
+        - 史料ノートの PDF
+        - そのほか
+    validations:
+      required: true
+  - type: textarea
+    id: use
+    attributes:
+      label: 何に使ったか
+      description: 論文・授業・道具の試験・読み物など。一行で足ります
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: 公開されている所在
+      description: 使った成果が公開されていれば、その DOI か URL。無ければ空欄
+    validations:
+      required: false
+  - type: textarea
+    id: note
+    attributes:
+      label: 気づいたこと
+      description: データの形や欄について気づいたことがあれば
+    validations:
+      required: false
