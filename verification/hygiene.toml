@@ -1,0 +1,44 @@
+# check_hygiene.py が読む。このリポジトリだけの違いをここに置く。
+
+# 外部のパッケージ。pypdf は正誤表の監査と data/check.py が紙面を読むのに使う。
+packages = ["pypdf"]
+
+# 書き込みの権限。「ワークフローのファイル名:権限」。無い。
+writes = []
+
+# 要旨。.zenodo.json の description に、日本語と英語を続けて置いている。
+[abstract]
+ja = [".zenodo.json", "description"]
+en = [".zenodo.json", "description"]
+# 日本語の要旨は日付を「昭和十八年九月十一日」と漢数字で書く。英語の側は 11 September 1943 と書く。
+en_only_numbers = ["11", "1943"]
+
+# 散文の数。ほかの検査が拾っていなかったもの。
+[[counts]]
+what = "収めた受章者"
+files = "data/investiture-1943-09-11.csv"
+pattern = '^\d{4}-\d{2},'
+places = [["README.md", '受章者 (\d+) 名'], ["README.md", '\| (\d+)件。表計算'],
+          ["data/README.md", '同じ (\d+) 件を収めて'], ["data/README.md", '(\d+)件のいずれについても'],
+          ["data/README.md", '2603-27（(\d+)件）'], ["CITATION.cff", '受章者(\d+)名'],
+          [".zenodo.json", '受章者(\d+)名'], [".zenodo.json", 'the (\d+) recipients']]
+
+[[counts]]
+what = "史料ノートの PDF の頁"
+files = "pdf/*.pdf"
+binary = true
+pattern = '/Type\s*/Page(?![s\w])'
+places = [["README.md", '全(\d+)ページ']]
+
+[[counts]]
+what = "史料ノートの PDF に埋め込んだ画像"
+files = "pdf/*.pdf"
+binary = true
+pattern = '/Subtype\s*/Image'
+places = [["README.md", '埋め込み画像は (\d+) 件']]
+
+[[copies]]
+what = "正誤表の監査の項目数"
+# CI の題の数は data/check.py が、走らせた check_errata.py の数と突き合わせている。CLAUDE.md はその写し。
+from = [".github/workflows/verify.yml", '正誤表の監査 (\d+) 項目']
+to = [["CLAUDE.md", '正誤表の監査 (\d+) 項目']]
