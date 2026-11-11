@@ -422,7 +422,7 @@ check("README の表と CI の題の check_errata.py の数が、走らせた数
       "名乗り %s / 実際 %s %s" % (",".join(map(str, said_errata)) or "無い", n_errata, why))
 
 print("11. 名乗る項目数")
-claimed = re.search(r"(\d+) 項目を確かめる", readme)
+claimed = re.search(r"(\d+) 項目を確かめます", readme)
 total = len(checked) + 1
 table = re.search(r"^\| `data/check\.py` \| (\d+) \| すべて通る \|$", readme, re.M)
 check("README が名乗る項目数が実際と合う（散文と、検査の結果の表）",
