@@ -23,6 +23,11 @@
       "identifier": "10.5281/zenodo.22055709",
       "relation": "isSupplementTo",
       "scheme": "doi"
+    },
+    {
+      "identifier": "https://www.jacar.archives.go.jp/das/meta/C12070491000",
+      "relation": "isDerivedFrom",
+      "scheme": "url"
     }
   ],
   "notes": "The repository was written with Claude Code (Anthropic) at the author's request. The author reviewed it and is responsible for it. Claude is not an author. The texts and the data are CC BY 4.0; the code is MIT (LICENSE-CODE)."

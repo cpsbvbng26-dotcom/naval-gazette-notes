@@ -15,7 +15,15 @@
   8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
   9. 原資料のスキャン画像が混入していない
  10. README の「史料の外にあるもの」が、報道と家伝を史料と混ぜていない
- 11. README が名乗る項目数が、実際に確かめた数と合う
+ 12. 種類と状態の札、CITATION.cff の type、Zenodo の関連する識別子が食い違っていない
+ 13. datapackage.json の列・型・制約・出典が、実際の CSV に合う
+ 14. 使い方の例が、データ辞書の写しと同じで、走らせた結果が CSV と合う
+ 15. 「このデータを使った」の issue の様式があり、連絡先を求めていない
+ 16. 典拠の所在の表が、リポジトリに現れる参照コードを過不足なく挙げる
+ 17. 年表の日付が、リポジトリのほかの箇所にすでに書いてある
+ 18. 読む順と、存命の人を書き足さない線が、頁の冒頭にある
+ 19. README の「検査の結果」の正誤表の監査の数が、走らせた数と合う
+ 11. README が名乗る項目数が、実際に確かめた数と合う（最後に数える）
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
 JSON・CITATION.cff に置いているので、片方だけ直すと食い違います。8 はそれを防ぎます。
@@ -136,11 +144,15 @@ for label, path in CITATION_FILES:
         text = fh.read()
     check("%s に同じ出典表記がある" % label, CITATION in text)
 
-# 散文が名乗る箇所の数（「四箇所」）が、ここで確かめている数（JSON と上の三つ）と合うこと。
+# 散文が名乗る箇所の数（「五箇所」）が、ここで確かめている数と合うこと。
 # 一度、README が「三箇所」と書いたまま data/README.md が足されていた。見出しの行は数えない。
 import re
 KANJI = "〇一二三四五六七八九"
-places = 1 + len(CITATION_FILES)
+with open(os.path.join(HERE, "datapackage.json"), encoding="utf-8") as fh:
+    pkg = json.load(fh)
+check("datapackage.json の sources に同じ出典表記がある",
+      [x.get("title") for x in pkg.get("sources", [])][:1] == [CITATION])
+places = 2 + len(CITATION_FILES)      # JSON の source.citation と datapackage.json と上の三つ
 said = []
 for label, path in CITATION_FILES[:2]:
     with open(path, encoding="utf-8") as fh:
@@ -237,12 +249,183 @@ check("その節に、存命の誰か一人を指す語（父・母）が無い"
       bool(outside) and not re.search(r"[父母]", outside.replace("祖父", "")),
       "".join(sorted(set(re.findall(r".?[父母].?", outside)))))
 
+
+print("12. 種類と状態の札")
+LABEL_LINE = "種類：史料研究・事例研究　状態：凍結"
+lines = readme.splitlines()
+first = next((l for l in lines[1:] if l.strip()), "")
+check("README の題のすぐ下に、種類と状態の札がある",
+      lines[:1] == ["# Naval Gazette Notes"] and first == LABEL_LINE, first)
+with open(os.path.join(ROOT, "CITATION.cff"), encoding="utf-8") as fh:
+    cff = fh.read()
+with open(os.path.join(ROOT, ".zenodo.json"), encoding="utf-8") as fh:
+    zen = json.load(fh)
+check("CITATION.cff の type が dataset", re.search(r"^type: dataset$", cff, re.M) is not None)
+check(".zenodo.json の upload_type が dataset", zen.get("upload_type") == "dataset")
+rel = {(r.get("relation"), r.get("identifier")) for r in zen.get("related_identifiers", [])}
+note_doi = re.search(r"^    doi: (10\.\S+)$", cff, re.M)
+check("Zenodo の記録が、史料ノートの DOI に isSupplementTo でつながる",
+      note_doi is not None and ("isSupplementTo", note_doi.group(1)) in rel,
+      note_doi.group(1) if note_doi else "CITATION.cff に史料ノートの DOI が無い")
+check("Zenodo の記録が、JACAR のレコードに isDerivedFrom でつながる",
+      ("isDerivedFrom", doc["source"]["jacar_permalink"]) in rel)
+check("関連する識別子の種類が、isSupplementTo と isDerivedFrom の二つに限られる",
+      {r for r, _ in rel} <= {"isSupplementTo", "isDerivedFrom"}, ", ".join(sorted({r for r, _ in rel})))
+
+print("13. datapackage.json")
+res = {r.get("name"): r for r in pkg.get("resources", [])}
+tab = res.get("investiture-csv", {})
+fields = tab.get("schema", {}).get("fields", [])
+with open(os.path.join(HERE, "investiture-1943-09-11.csv"), encoding="utf-8") as fh:
+    header = next(csv.reader(fh))
+check("datapackage.json の列が、CSV の列と check.py の列と同じ順で並ぶ",
+      [f.get("name") for f in fields] == header == COLUMNS, "%d 列" % len(fields))
+check("datapackage.json の資源が、実在する CSV と JSON を指す",
+      tab.get("path") == "investiture-1943-09-11.csv"
+      and res.get("investiture-json", {}).get("path") == "investiture-1943-09-11.json"
+      and all(os.path.exists(os.path.join(HERE, r.get("path", ""))) for r in res.values()))
+bad = []
+for f in fields:
+    n, c = f.get("name"), f.get("constraints", {})
+    vals = [r[n] for r in rows]
+    filled = [v for v in vals if v != ""]
+    if c.get("required") and len(filled) != len(vals):
+        bad.append("%s: 空欄" % n)
+    if c.get("unique") and len(set(filled)) != len(filled):
+        bad.append("%s: 重複" % n)
+    if "pattern" in c and any(not re.fullmatch(c["pattern"], v) for v in filled):
+        bad.append("%s: 形が合わない" % n)
+    if "enum" in c and not set(filled) <= set(c["enum"]):
+        bad.append("%s: 表に無い値 %s" % (n, sorted(set(filled) - set(c["enum"]))))
+check("datapackage.json の制約を、CSV の全行が満たす", not bad, "; ".join(bad))
+enum = {f["name"]: f.get("constraints", {}).get("enum") for f in fields}
+check("rank_source の値の表が、printed と ditto の二つ", enum.get("rank_source") == ["printed", "ditto"])
+check("datapackage.json の主キーが entry_no", tab.get("schema", {}).get("primaryKey") == "entry_no")
+check("datapackage.json のライセンスが CITATION.cff と同じ（CC-BY-4.0）",
+      [l.get("name") for l in pkg.get("licenses", [])] == ["CC-BY-4.0"]
+      and re.search(r"^license: CC-BY-4.0$", cff, re.M) is not None)
+check("datapackage.json の出典の所在が、JACAR の恒久リンク",
+      [x.get("path") for x in pkg.get("sources", [])][:1] == [doc["source"]["jacar_permalink"]])
+
+print("14. 使い方の例")
+import subprocess
+with open(os.path.join(HERE, "example.py"), encoding="utf-8") as fh:
+    example = fh.read()
+with open(os.path.join(HERE, "README.md"), encoding="utf-8") as fh:
+    dic = fh.read()
+m = re.search(r"^## 使い方の例\n.*?^```python\n(.*?)^```$", dic, re.S | re.M)
+check("データ辞書の例が data/example.py と一字一句同じ", m is not None and m.group(1) == example)
+try:
+    out = subprocess.run([sys.executable, os.path.join(HERE, "example.py")],
+                         capture_output=True, text=True, timeout=60)
+    ran, got = out.returncode == 0, out.stdout.splitlines()
+except Exception as exc:                                    # noqa: BLE001
+    ran, got = False, [str(exc)]
+check("data/example.py が走る", ran)
+want = {"全件 %d" % len(rows),
+        "%s %s %s %s" % (otani["entry_no"], otani["name_as_printed"],
+                         otani["rank_ja"], otani["rank_source"])}
+for col in ("rank_ja", "rank_source"):
+    for v in set(r[col] for r in rows):
+        want.add("%s %d" % (v, sum(r[col] == v for r in rows)))
+check("data/example.py の出力が、CSV の中身と合う", set(got) == want, " / ".join(got))
+
+print("15. 使ったことを知らせる窓口")
+tpath = os.path.join(ROOT, ".github", "ISSUE_TEMPLATE", "used-this-data.yml")
+tmpl = open(tpath, encoding="utf-8").read() if os.path.exists(tpath) else None
+check("「このデータを使った」の issue の様式があり、README がつないでいる",
+      tmpl is not None and "name: このデータを使った" in tmpl
+      and "template=used-this-data.yml" in readme)
+check("その様式が連絡先を求めていない",
+      tmpl is not None and not re.search(r"(?i)e-?mail|メール|電話|住所", tmpl))
+
+print("16. 典拠の所在")
+src = re.search(r"^## 典拠の所在\n(.*?)(?=^## )", readme, re.S | re.M)
+src_text = src.group(1) if src else ""
+listed = re.findall(r"^\| [^|]+ \| JACAR Ref\.(C\d{11}) \|", src_text, re.M)
+seen = set()
+for dirpath, dirnames, filenames in os.walk(ROOT):
+    dirnames[:] = [d for d in dirnames if d not in (".git", "pdf", "__pycache__")]
+    for name in filenames:
+        if name.endswith((".md", ".json", ".cff", ".py", ".toml", ".yml")):
+            with open(os.path.join(dirpath, name), encoding="utf-8") as fh:
+                seen |= set(re.findall(r"(?<![0-9A-Za-z])(C\d{11})(?!\d)", fh.read()))
+check("リポジトリに現れる JACAR の参照コードが、すべて典拠の表にある",
+      bool(listed) and seen == set(listed),
+      "表 %s / リポジトリ %s" % (sorted(listed), sorted(seen)))
+m = re.search(r"参照コードを持つ典拠は(.)件です", src_text)
+check("散文が名乗る典拠の件数が、表の行数と合う",
+      m is not None and m.group(1) == KANJI[len(listed)],
+      "名乗り %s / 表 %d 行" % (m.group(1) if m else "無い", len(listed)))
+check("典拠の表が、簿冊名と整理番号を未確認と書き、課題につないでいる",
+      "未確認（[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text)
+
+print("17. 年表")
+tl = re.search(r"^## 年表\n(.*?)(?=^## )", readme, re.S | re.M)
+tl_text = tl.group(1) if tl else ""
+others = readme.replace(tl_text, "")
+for dirpath, dirnames, filenames in os.walk(ROOT):
+    dirnames[:] = [d for d in dirnames if d not in (".git", "pdf", "__pycache__")]
+    for name in filenames:
+        full = os.path.join(dirpath, name)
+        if name.endswith((".md", ".json", ".cff")) and os.path.relpath(full, ROOT) != "README.md":
+            with open(full, encoding="utf-8") as fh:
+                others += fh.read()
+missing, n_dates = [], 0
+for cell in re.findall(r"^\| ([^|]+?) \| [^|]+ \| [^|]+ \|$", tl_text, re.M):
+    if cell in ("日付", "---"):
+        continue
+    d = re.match(r"(\d{4})年(?:(\d+)月)?(?:(\d+)日)?", cell)
+    if not d:
+        missing.append(cell)
+        continue
+    n_dates += 1
+    y, mo, da = d.groups()
+    forms = {d.group(0)}
+    if mo:
+        iso = "%s-%02d" % (y, int(mo)) + ("-%02d" % int(da) if da else "")
+        forms.add(iso)
+    if not any(f in others for f in forms):
+        missing.append(cell)
+check("年表の日付が、すべてリポジトリのほかの箇所にすでにある",
+      n_dates > 0 and not missing, ", ".join(missing) or "%d 行" % n_dates)
+
+print("18. 読む順と、扱う人")
+heads = re.findall(r"^## (.+)$", readme, re.M)
+check("「読む順」と「扱う人」が、史料ノートの節より前にある",
+      "読む順" in heads and "扱う人" in heads and "史料ノート" in heads
+      and heads.index("読む順") < heads.index("史料ノート")
+      and heads.index("扱う人") < heads.index("史料ノート"))
+check("README とデータ辞書が、存命の人を書き足さないと述べている",
+      "このリポジトリは、著者のほかに存命の人を書き足しません。" in readme
+      and "存命の人を書き足すことはしません。" in dic)
+check("README とデータ辞書が、大谷恒のほかの受章者の生没を確かめていないと述べている",
+      "大谷恒のほかの受章者の生没は、確かめていません。" in readme
+      and "大谷恒のほかの受章者の生没は、確かめていません。" in dic)
+
+print("19. 検査の結果")
+try:
+    out = subprocess.run([sys.executable, os.path.join(ROOT, "verification", "check_errata.py")],
+                         capture_output=True, text=True, timeout=600, cwd=ROOT)
+    m = re.search(r"(\d+) 件すべて通りました。", out.stdout)
+    n_errata = int(m.group(1)) if m else None
+    why = "" if m else (out.stderr.strip().splitlines() or ["出力に数が無い"])[-1]
+except Exception as exc:                                    # noqa: BLE001
+    n_errata, why = None, str(exc)
+m = re.search(r"^\| `verification/check_errata\.py` \| (\d+) \| すべて通る \|$", readme, re.M)
+check("README の表の check_errata.py の数が、走らせた数と合う（pypdf が要る）",
+      m is not None and n_errata is not None and int(m.group(1)) == n_errata,
+      "名乗り %s / 実際 %s %s" % (m.group(1) if m else "無い", n_errata, why))
+
 print("11. 名乗る項目数")
 claimed = re.search(r"(\d+) 項目を確かめる", readme)
 total = len(checked) + 1
-check("README が名乗る項目数が実際と合う",
-      claimed is not None and int(claimed.group(1)) == total,
-      "名乗り %s / 実際 %d" % (claimed.group(1) if claimed else "無い", total))
+table = re.search(r"^\| `data/check\.py` \| (\d+) \| すべて通る \|$", readme, re.M)
+check("README が名乗る項目数が実際と合う（散文と、検査の結果の表）",
+      claimed is not None and int(claimed.group(1)) == total
+      and table is not None and int(table.group(1)) == total,
+      "名乗り %s・%s / 実際 %d" % (claimed.group(1) if claimed else "無い",
+                                 table.group(1) if table else "無い", total))
 
 print()
 if failures:

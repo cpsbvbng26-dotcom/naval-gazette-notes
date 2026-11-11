@@ -1,0 +1,167 @@
+{
+  "profile": "tabular-data-package",
+  "name": "naval-gazette-investiture-1943-09-11",
+  "id": "https://doi.org/10.5281/zenodo.24034130",
+  "title": "Naval Gazette Notes — 海軍公報からの史料ノートとデータ",
+  "description": "海軍公報（部内限）號外、昭和十八年九月十一日發令の叙勲名簿から、敍勲四等授瑞寶章の受章者を機械可読にしたものです。史料ノート第3節の翻刻にもとづきます。列の意味は data/README.md にあります。",
+  "homepage": "https://github.com/cpsbvbng26-dotcom/naval-gazette-notes",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0 International",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  ],
+  "contributors": [
+    {
+      "title": "Nemoto, Takuya",
+      "path": "https://orcid.org/0009-0000-1406-0547",
+      "role": "author"
+    }
+  ],
+  "sources": [
+    {
+      "title": "JACAR（アジア歴史資料センター）Ref.C12070491000、海軍公報（部内限）號外　昭和十八年九月十一日發令（防衛省防衛研究所）",
+      "path": "https://www.jacar.archives.go.jp/das/meta/C12070491000"
+    }
+  ],
+  "resources": [
+    {
+      "name": "investiture-csv",
+      "path": "investiture-1943-09-11.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "dialect": {
+        "delimiter": ",",
+        "header": true
+      },
+      "schema": {
+        "fields": [
+          {
+            "name": "entry_no",
+            "type": "string",
+            "description": "假記番号。原文は漢数字表記",
+            "constraints": {
+              "required": true,
+              "unique": true,
+              "pattern": "^2603-[0-9]{2}$"
+            }
+          },
+          {
+            "name": "entry_marker",
+            "type": "string",
+            "description": "原文の番号欄の先頭",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "假記",
+                "同"
+              ]
+            }
+          },
+          {
+            "name": "rank_ja",
+            "type": "string",
+            "description": "階級",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "海軍大尉",
+                "海軍中尉"
+              ]
+            }
+          },
+          {
+            "name": "rank_en",
+            "type": "string",
+            "description": "同じ階級の英語表記",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "Lieutenant",
+                "Sub-Lieutenant"
+              ]
+            }
+          },
+          {
+            "name": "rank_source",
+            "type": "string",
+            "description": "階級が原文に書かれていたか、同から引き継いだか",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "printed",
+                "ditto"
+              ]
+            }
+          },
+          {
+            "name": "name_as_printed",
+            "type": "string",
+            "description": "氏名。原文の字体のまま",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "surname",
+            "type": "string",
+            "description": "姓",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "given_name",
+            "type": "string",
+            "description": "名",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "subheading_ja",
+            "type": "string",
+            "description": "直前に置かれた小見出し。該当なしは空欄"
+          },
+          {
+            "name": "order_class",
+            "type": "string",
+            "description": "叙勲の等級",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "四等"
+              ]
+            }
+          },
+          {
+            "name": "decoration",
+            "type": "string",
+            "description": "勲章",
+            "constraints": {
+              "required": true,
+              "enum": [
+                "瑞寶章"
+              ]
+            }
+          }
+        ],
+        "primaryKey": "entry_no",
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "name": "investiture-json",
+      "path": "investiture-1943-09-11.json",
+      "format": "json",
+      "mediatype": "application/json",
+      "encoding": "utf-8",
+      "description": "CSV と同じ行に、出典と凡例を付けたもの"
+    }
+  ]
+}
