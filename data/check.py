@@ -144,10 +144,10 @@ for label, path in CITATION_FILES:
         text = fh.read()
     check("%s に同じ出典表記がある" % label, CITATION in text)
 
-# 散文が名乗る箇所の数（「五箇所」）が、ここで確かめている数と合うこと。
+# 散文が名乗る箇所の数（「5 箇所」）が、ここで確かめている数と合うこと。
 # 一度、README が「三箇所」と書いたまま data/README.md が足されていた。見出しの行は数えない。
+# 数は算用数字で書く（2026-11-12）。漢数字の名乗りが残っていれば、数が合っていても落とす。
 import re
-KANJI = "〇一二三四五六七八九"
 with open(os.path.join(HERE, "datapackage.json"), encoding="utf-8") as fh:
     pkg = json.load(fh)
 check("datapackage.json の sources に同じ出典表記がある",
@@ -157,9 +157,9 @@ said = []
 for label, path in CITATION_FILES[:2]:
     with open(path, encoding="utf-8") as fh:
         prose = "\n".join(l for l in fh.read().splitlines() if not l.startswith("#"))
-    said += ["%s: %s箇所" % (label, n) for n in re.findall(r"([一二三四五六七八九])箇所", prose)]
-check("散文が名乗る出典表記の箇所の数が、確かめている数（%s箇所）と合う" % KANJI[places],
-      bool(said) and all(s.endswith(KANJI[places] + "箇所") for s in said),
+    said += ["%s: %s 箇所" % (label, n) for n in re.findall(r"(\d+|[一二三四五六七八九]) ?箇所", prose)]
+check("散文が名乗る出典表記の箇所の数が、確かめている数（%d 箇所）と合い、算用数字で書いてある" % places,
+      bool(said) and all(s.endswith(": %d 箇所" % places) for s in said),
       " / ".join(said) if said else "名乗りが無い")
 
 check("レコードの恒久リンクが das/meta 形式",
@@ -353,10 +353,16 @@ for dirpath, dirnames, filenames in os.walk(ROOT):
 check("リポジトリに現れる JACAR の参照コードが、すべて典拠の表にある",
       bool(listed) and seen == set(listed),
       "表 %s / リポジトリ %s" % (sorted(listed), sorted(seen)))
-m = re.search(r"参照コードを持つ典拠は(.)件です", src_text)
-check("散文が名乗る典拠の件数が、表の行数と合う",
-      m is not None and m.group(1) == KANJI[len(listed)],
+m = re.search(r"参照コードを持つ典拠は ?(\d+|[〇一二三四五六七八九]) ?件です", src_text)
+check("散文が名乗る典拠の件数が、表の行数と合い、算用数字で書いてある",
+      m is not None and m.group(1) == str(len(listed)),
       "名乗り %s / 表 %d 行" % (m.group(1) if m else "無い", len(listed)))
+# 冒頭の「いまのところ N 件です」は、翻刻した史料の数である。データの JSON の数と合わせる。
+_notes = [f for f in os.listdir(HERE) if re.match(r"investiture-.+\.json$", f)]
+m = re.search(r"いまのところ ?(\d+|[〇一二三四五六七八九]) ?件です", readme)
+check("冒頭が名乗る史料の件数が、データの JSON の数と合い、算用数字で書いてある",
+      m is not None and m.group(1) == str(len(_notes)),
+      "名乗り %s / JSON %d" % (m.group(1) if m else "無い", len(_notes)))
 check("典拠の表が、簿冊名と整理番号を未確認と書き、課題につないでいる",
       "未確認（[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text)
 
