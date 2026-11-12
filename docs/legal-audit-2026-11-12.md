@@ -82,8 +82,42 @@ Sophaxis の取り寄せの仕事を走らせて e-Gov から取り寄せ、cpsb
 | README「ライセンス」 | 著作権法第21条 | 取り寄せた文は「著作者は、その著作物を複製する権利を専有する。」と定める（cpsbvbng26-dotcom の `verification/statutes.json`、SHA-256 `a85d04f2fd20d7867d5579bee40676b13405c58ea7fd7eb27f1e7a5a03bda100`）。許せるのは、許す者が権利を持つものだけである。ライセンスの文が、他人の文まで許すと読めないこと | README のライセンスの節は、文書の CC BY 4.0 とコードの MIT だけを書き、引いた他人の文の扱いを書いていなかった。Sophaxis は、最初の見落としの節で同じ一文を足していたが、10 のリポジトリと deposit-check には届いていなかった。上の点検の表の「README「ライセンス」、LICENSE、LICENSE-CODE、CITATION.cff、.zenodo.json」の行は問題なしとしていたが、他人の文の扱いを見ていなかった | 漏れ | README のライセンスの節に「このリポジトリが引き、または引用を確かめるために置いている他人の文は、CC BY 4.0 でも MIT でも許諾しておらず、それぞれの権利者のものです。」を足した。`check_ecosystem.js` の 12l が、10 のリポジトリと deposit-check の README（英語の README を含む）にこの一文があることを見る。2026-11-12 に Claude が決めました。Sophaxis の README と同じ範囲を、同じ形で書くためです |
 | CITATION.cff の message と .zenodo.json の notes | 著作権法第21条 | 同上。引用情報の license の欄は、どの部分に掛かるかを書けないので、その範囲を別の欄で書くこと | CITATION.cff と .zenodo.json の license の欄は CC BY 4.0 で、notes は文書とデータが CC BY 4.0、コードが MIT とだけ書いていた。README が書く「公報そのものの著作権法上の扱いは、ここでは決めていません」は、引用情報には無かった。上の点検の表の「README「ライセンス」、LICENSE、LICENSE-CODE、CITATION.cff、.zenodo.json」の行は問題なしとしていたが、欄の掛かる範囲と他人の文を見ていなかった | 表現 | message と notes に、史料ノート・文書・構造化したデータが CC BY 4.0、検査のスクリプトが MIT で、license の欄は文書とデータだけに掛かり、海軍公報そのものには掛からないことを書いた。他人の文は許諾していないとも、和英で書いた。`check_ecosystem.js` の 12l が、二つのファイルにこの文があり、置き方が目録の licenceLayout と同じことを見る。2026-11-12 に Claude が決めました。Sophaxis の CITATION.cff が三度目の見落としの節で書いた範囲の文に、10 のリポジトリと deposit-check を揃えるためです |
 
+## 2026-11-12 の続き：八度目の見落とし
+
+読むだけの点検を、八度目に別の手で行いました。
+上の節が見落としていたものが見つかりました。
+直した日は、日本時間で 2026-11-13 です。
+前の行は、そのとき何を確かめたかの記録なので、消していません。
+GitHub の利用規約の I 節は「Some Service features may be subject to additional terms specific to that feature or product as set forth in the GitHub Additional Product Terms.」と書きます。
+その追加の規約（GitHub Terms for Additional Products and Features）を、これまでの点検は取り寄せていませんでした。
+追加の規約は、`github/site-policy` のコミット `166eb97e485b7de3cd5dbaf8c8d16e4310fda46c` の文を、2026-11-13 に raw.githubusercontent.com から直に取り寄せました。
+ファイルの SHA-256 は `c39b5a7fc1953ebd37428db18101726acefb55420f766bcd7d912e1b71ee2ffc` です。
+Actions の節は「Additionally, regardless of whether an Action is using self-hosted runners, Actions should not be used for:」と書き、次の二つを挙げます。
+一つは「Any activity that places a burden on our servers, where that burden is disproportionate to the benefits provided to users (for example, don't use Actions as a content delivery network or as part of a serverless application, but a low benefit Action could be ok if it’s also low burden); or」です。
+もう一つは「If using GitHub-hosted runners, any other activity unrelated to the production, testing, deployment, or publication of the software project associated with the repository where GitHub Actions are used.」です。
+同じ節は「Misuse of GitHub Actions may result in termination of jobs, restrictions in your ability to use GitHub Actions, disabling of repositories created to run Actions in a way that violates these Terms, or in some cases, suspension or termination of your GitHub account.」とも書きます。
+このリポジトリのワークフローは、どれも GitHub の実行環境（`ubuntu-latest` か `ubuntu-24.04`）で動きます。
+そこで、ワークフローを一つずつ、四つの目的（制作・検査・配備・公開）のどれに当たるか、負荷が益に見合うかで読みました。
+ワークフローの行は、箇所の欄を `.github/workflows/` のファイルの名で始めます。
+実行の時間は、GitHub の API で 2026-11-13 に読んだ直近の実行（多くて 300 件）の中央値です。
+GitHub Pages が枝から頁を配るときに GitHub が動かす仕事と、Dependabot の版の更新は、このリポジトリのファイルではないので、表に挙げていません。
+引いた文は、cpsbvbng26-dotcom の `verification/statutes.json` の「GitHub の利用規約 I」と「GitHub の追加製品の規約 Actions」に写しました。
+同じ点検は、13 のリポジトリの記録の同じ見出しの節にあります。
+
+| 箇所 | 法令と条 | 要件 | 事実 | 判定 | 対応 |
+| --- | --- | --- | --- | --- | --- |
+| GitHub の追加製品の規約（Actions の節） | GitHub の利用規約 I、GitHub の追加製品の規約 Actions | 使っているサービスの規約を取り寄せて読むこと | 利用規約の I 節は追加の規約を取り込みますが、これまでの点検は追加の規約を読んでいませんでした | 漏れ | 取り寄せ、Actions の節の文を cpsbvbng26-dotcom の `verification/statutes.json` に写しました。Sophaxis と Nusquama の見張りにも足しました。2026-11-13 に Claude が決めました。ワークフローの使い方を決める文なので、ほかの規約と同じに読むためです |
+| `.github/workflows/hygiene.yml`（main への push・PR、毎週水曜の 13:46、手で起こすとき） | GitHub の追加製品の規約 Actions | GitHub の実行環境で、リポジトリのソフトウェアのプロジェクトの制作・検査・配備・公開のどれかに当たること。負荷が利用者への益に見合うこと | 依存・権限・固定・秘密の走査（`verification/check_hygiene.py`）を回します。週に一度の実行は、変更の無い日にも混入を見るためです。実行の中央値は 9 秒です | 問題なし | 変えていません。検査に当たり、負荷は週に一度の数秒です |
+| `.github/workflows/verify.yml`（main への push・PR、手で起こすとき） | GitHub の追加製品の規約 Actions | GitHub の実行環境で、リポジトリのソフトウェアのプロジェクトの制作・検査・配備・公開のどれかに当たること。負荷が利用者への益に見合うこと | このリポジトリの検査を回します（誤変換、データ、正誤表の監査）。実行の中央値は 11 秒です | 問題なし | 変えていません。検査に当たります |
+| 検査（`verification/check_hygiene.py`） | なし | ワークフローごとの判断を、機械で固めること | ありませんでした | 漏れ | `verification/check_hygiene.py` に 7 番を足し、`.github/workflows/` のどのファイルもこの節の表に行を持ち、無いファイルの行が無いことを確かめます。cpsbvbng26-dotcom の `check_ecosystem.js` の 12o も、13 のリポジトリについて同じことを確かめます。2026-11-13 に Claude が決めました。新しいワークフローを、規約に照らさずに足せないようにするためです |
+
+この表の判定は、漏れ 2、問題なし 2 です。
+
+弁護士は、この節を見ていません。
+
 ## 調べた法令
 
+- GitHub の利用規約（I 節）と GitHub の追加製品の規約（Actions の節。2026-11-13 に `github/site-policy` から直に取り寄せた）
 - 著作権法（第2条、第10条、第13条、第21条、第23条、第32条、第48条、第53条）
 - 個人情報保護法（第2条、第16条、第21条、第27条）
 - 刑法（第230条）
