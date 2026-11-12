@@ -1,5 +1,6 @@
 # データ辞書
 
+`data/` の CSV と JSON の列の意味を述べるデータ辞書です。
 `investiture-1943-09-11.csv` と `investiture-1943-09-11.json` は同じ 10 件を収めています。
 CSV は表計算ソフト向け、JSON は出典と凡例を同梱した形です。
 `datapackage.json` が、CSV の列の型と制約と出典を、機械が読める形（Frictionless の Data Package）で述べています。

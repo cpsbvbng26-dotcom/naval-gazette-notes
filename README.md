@@ -5,7 +5,7 @@
 [![検査](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml/badge.svg)](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/actions/workflows/verify.yml)
 
 海軍公報から一件ずつ史料を翻刻し、その史料で確定できることと、できないことを分けて
-記録します。
+記録する史料ノートです。
 
 いまのところ一件です。1943年9月11日発令の叙勲名簿から、瑞寶章四等の受章者 10 名。
 
