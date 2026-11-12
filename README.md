@@ -199,7 +199,7 @@ python3 data/check.py
 | 検査 | 項目 | 結果 |
 | --- | --- | --- |
 | `data/check.py` | 57 | すべて通る |
-| `verification/check_errata.py` | 59 | すべて通る |
+| `verification/check_errata.py` | 68 | すべて通る |
 
 この表の数は、`data/check.py` が自分の数を数え、正誤表の監査を走らせて得た数と突き合わせています。正誤表の監査には pypdf が要ります。この表を確かめるときも同じです。
 
