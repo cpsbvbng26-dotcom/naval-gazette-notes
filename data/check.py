@@ -363,8 +363,11 @@ m = re.search(r"いまのところ ?(\d+|[〇一二三四五六七八九]) ?件�
 check("冒頭が名乗る史料の件数が、データの JSON の数と合い、算用数字で書いてある",
       m is not None and m.group(1) == str(len(_notes)),
       "名乗り %s / JSON %d" % (m.group(1) if m else "無い", len(_notes)))
-check("典拠の表が、簿冊名と整理番号を未確認と書き、課題につないでいる",
-      "未確認（[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text)
+# 2026-11-12 の法令の点検で、JACAR の目録の頁を取り寄せた（Sophaxis の取り寄せの仕事）。
+# 簿冊名・件名・請求番号は、目録の表示のまま書き、取り寄せた日と課題につなぐ。推奨を規定と書かない。
+check("典拠の表が、簿冊名・件名・請求番号を JACAR の目録の表示のまま書き、取り寄せた日と課題につないでいる",
+      "簿冊名「昭和１９年１月．昭和１９年５月 海軍公報（部内限）号外」、件名「４月（８）」、所蔵館における請求番号「０法令－海軍（二復）公報－１３３」（JACAR の目録の表示のまま。2026-11-12 に取り寄せた。[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text
+      and "引用例を推奨しています" in readme and "出典表記の形式を定めています" not in readme)
 
 print("17. 年表")
 tl = re.search(r"^## 年表\n(.*?)(?=^## )", readme, re.S | re.M)
