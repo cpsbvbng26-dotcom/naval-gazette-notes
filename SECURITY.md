@@ -3,7 +3,10 @@
 ## 日本語
 
 このリポジトリにあるのは、文書と、手元で動かすスクリプトと、静的な頁です。
-サーバーで動く仕組みも、入力を受け取る欄も、cookie もありません。
+同じ運営者の errata-check と deposit-check の二つのリポジトリには、そのほかに GitHub Action があります。
+サーバーで動く仕組みも、cookie もありません。
+二つの GitHub Action は、使う人のワークフローの中で動き、入力を受け取ります。
+Action についての報告も、この窓口で受けます。
 
 安全の問題は、公開の issue ではなく、メールで受けます。
 宛先は、運営者の [ORCID の記録](https://orcid.org/0009-0000-1406-0547)にあるメールアドレスです。
@@ -21,7 +24,10 @@ GitHub の非公開の脆弱性報告（private vulnerability reporting）は、
 ## English
 
 This repository holds documents, scripts that run locally, and static pages.
-Nothing runs on a server, nothing takes input, and nothing sets a cookie.
+Two of the operator's repositories, errata-check and deposit-check, also publish a GitHub Action.
+Nothing runs on a server, and nothing sets a cookie.
+The two GitHub Actions run in their users' workflows and take inputs.
+Reports about the Actions are in scope here.
 
 Security issues are received by email, not in a public issue.
 The address is the one on the operator's [ORCID record](https://orcid.org/0009-0000-1406-0547).
