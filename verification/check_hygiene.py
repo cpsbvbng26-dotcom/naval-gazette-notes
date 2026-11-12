@@ -3,7 +3,7 @@
 
     python3 verification/check_hygiene.py
 
-見るのは六つである。
+見るのは七つである。
 
   依存     外部のパッケージは、hygiene.toml の packages に挙げたものだけを使う。
            import / require、pip install / npm install、package.json・pyproject.toml・
@@ -16,8 +16,10 @@
            メールアドレスが無い。
   要旨     日本語の要旨と英語の要旨が、同じ数とローマ字の語を挙げる。
   数       ほかの検査が拾っていなかった散文の数を、数え直すか、もとの数と突き合わせる。
+  規約     .github/workflows/ のどのファイルも、法令の点検の記録（docs/legal-audit-2026-11-12.md）の
+           「八度目の見落とし」の表に行を持ち、GitHub の追加製品の規約の Actions の節に照らして判定してある。
 
-この六つは、ほかのリポジトリと同じ一本のスクリプトで見る。違うのは hygiene.toml だけである。
+この七つは、ほかのリポジトリと同じ一本のスクリプトで見る。違うのは hygiene.toml だけである。
 このファイルは各リポジトリで一字一句同じにしてある。直すときは全部直す。
 """
 from __future__ import annotations
@@ -344,6 +346,62 @@ for c in CONF.get("copies", []):
         if not nums or set(nums) != set(src[:1]):
             wrong.append(place[0] + " " + (",".join(map(str, nums)) or "名乗りが無い"))
     ok("%s の写しが、もと（%s の %s）と合う" % (c["what"], c["from"][0], ",".join(map(str, sorted(set(src))))), not wrong, " / ".join(wrong))
+
+# ------------------------------------------------------------------
+print("7. ワークフローと GitHub の規約（2026-11-13）")
+# ------------------------------------------------------------------
+# GitHub の利用規約は I 節で追加製品の規約を取り込み、その Actions の節は、GitHub の実行環境での使い方を、リポジトリの
+# ソフトウェアのプロジェクトの制作・検査・配備・公開に限る。ワークフローを足すときは、点検の記録の表に行を足して判定する。
+# 行の無いワークフローも、無いワークフローの行も落とす。引いた文が記録にあることも見る。
+AUDIT = "docs/legal-audit-2026-11-12.md"
+EIGHTH = "\n## 2026-11-12 の続き：八度目の見落とし\n"
+PURPOSE = ("If using GitHub-hosted runners, any other activity unrelated to the production, testing, deployment, "
+           "or publication of the software project associated with the repository where GitHub Actions are used.")
+
+
+def workflow_rows(text: str) -> tuple[list[list[str]], str]:
+    i = text.find(EIGHTH)
+    if i < 0:
+        return [], ""
+    j = text.find("\n## ", i + len(EIGHTH))
+    sec = text[i: j if j >= 0 else len(text)]
+    rows = [l[2:-2].split(" | ") for l in sec.splitlines() if l.startswith("| ") and not l.startswith(("| 箇所 |", "| --- |"))]
+    return rows, sec
+
+
+def workflow_problems(text: str, names: list[str]) -> list[str]:
+    rows, sec = workflow_rows(text)
+    if not sec:
+        return ["記録に八度目の見落としの節が無い"]
+    bad = []
+    judged = {"誤り", "根拠不足", "漏れ", "表現", "問題なし"}
+    for r in rows:
+        if len(r) != 6 or r[4] not in judged:
+            bad.append("表の形：" + r[0][:30])
+        elif r[4] != "問題なし" and "2026-11-13 に Claude が決めました。" not in r[5]:
+            bad.append("決めた者の無い行：" + r[0][:30])
+    named = [m.group(1) for r in rows for m in [re.match(r"`\.github/workflows/([^`]+)`", r[0])] if m]
+    bad += ["行の無いワークフロー：" + n for n in names if n not in named]
+    bad += ["無いワークフローの行：" + n for n in named if n not in names]
+    if "「" + PURPOSE + "」" not in sec:
+        bad.append("Actions の節の文を引いていない")
+    return bad
+
+
+AUDIT_TEXT = read(AUDIT) if os.path.isfile(os.path.join(ROOT, AUDIT)) else ""
+NAMES = sorted(os.path.basename(f) for f in YML)
+wp = workflow_problems(AUDIT_TEXT, NAMES)
+ok("ワークフロー（" + str(len(NAMES)) + " 本）が、どれも点検の記録の表に行を持ち、GitHub の追加製品の規約に照らして判定してある", not wp, ", ".join(wp))
+first = NAMES[0] if NAMES else "x.yml"
+broken = [
+    workflow_problems(AUDIT_TEXT, NAMES + ["newsletter.yml"]),
+    workflow_problems(AUDIT_TEXT, [n for n in NAMES if n != first]),
+    workflow_problems(re.sub(r"\n\| `\.github/workflows/" + re.escape(first) + r"`[^\n]*", "", AUDIT_TEXT), NAMES),
+    workflow_problems(AUDIT_TEXT.replace("publication of the software project", "promotion of the software project"), NAMES),
+    workflow_problems(AUDIT_TEXT.replace(EIGHTH, "\n## 八度目\n"), NAMES),
+]
+ok("壊して確かめる：新しいワークフロー・外したワークフロー・表から外した行・引いた文の一語・節の見出しのどれでも落ちる（"
+   + str(sum(1 for b in broken if b)) + " / " + str(len(broken)) + "）", all(broken))
 
 print("\n" + "-" * 56)
 if failed:
