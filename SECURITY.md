@@ -5,13 +5,12 @@
 このリポジトリにあるのは、文書と、手元で動かすスクリプトと、静的な頁です。
 サーバーで動く仕組みも、入力を受け取る欄も、cookie もありません。
 
-安全の問題は、GitHub の非公開の報告で受けます。
-入口は、リポジトリの Security の欄にある「Report a vulnerability」です。
-詳細は、公開の issue には載せない扱いにしています。
-非公開の報告が開いていないときは、題だけの issue で「非公開の連絡を求める」と知らせる形も受けます。
-運営者から、非公開で連絡する方法を返します。
+安全の問題は、公開の issue ではなく、メールで受けます。
+宛先は、運営者の [ORCID の記録](https://orcid.org/0009-0000-1406-0547)にあるメールアドレスです。
+免責事項が、人についての記載の誤りを受ける窓口と同じです。
+GitHub の非公開の脆弱性報告（private vulnerability reporting）は、このリポジトリでは有効になっていません（2026-11-12 に確かめました）。
 
-秘密の鍵や個人の連絡先が載っているのを見つけたときも、同じ入口で受けます。
+秘密の鍵や個人の連絡先が載っているのを見つけたときも、同じ宛先で受けます。
 その記載は、判断の前に外します。
 
 答えは 7 日以内を目指します。
@@ -24,13 +23,12 @@
 This repository holds documents, scripts that run locally, and static pages.
 Nothing runs on a server, nothing takes input, and nothing sets a cookie.
 
-Security issues are received through GitHub's private vulnerability reporting.
-The entry is "Report a vulnerability" under the repository's Security tab.
-Details are kept out of public issues.
-If private reporting is not open, an issue with only the title "Request for private contact" is also accepted.
-The maintainer then replies with a private way to talk.
+Security issues are received by email, not in a public issue.
+The address is the one on the operator's [ORCID record](https://orcid.org/0009-0000-1406-0547).
+It is the same contact the disclaimer gives for an error in a statement about a person.
+GitHub's private vulnerability reporting is not enabled for this repository (checked on 2026-11-12).
 
-An exposed secret key or personal contact detail is reported the same way.
+An exposed secret key or personal contact detail is reported to the same address.
 It is taken down before anything else is decided.
 
 The aim is to answer within 7 days.
