@@ -30,5 +30,5 @@
       "scheme": "url"
     }
   ],
-  "notes": "The repository was written with Claude Code (Anthropic) at the author's request. The author reviewed it and is responsible for it. Claude is not an author. The texts and the data are CC BY 4.0; the code is MIT (LICENSE-CODE)."
+  "notes": "The repository was written with Claude Code (Anthropic) at the author's request. The author reviewed it and is responsible for it. Claude is not an author. The source note, the texts and the structured data are CC BY 4.0 (LICENSE); the check scripts are MIT (LICENSE-CODE). The licence field of this record covers the texts and the data only. It does not cover the Naval Gazette itself; how copyright law treats the gazette is not decided here. Texts by others that this repository quotes, or keeps to verify its quotations, are not licensed under CC BY 4.0 or the MIT License and remain their owners'."
 }

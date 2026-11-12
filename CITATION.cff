@@ -3,6 +3,10 @@ title: Naval Gazette Notes — 海軍公報からの史料ノートとデータ
 message: >-
   このリポジトリを参照する場合は、以下の情報を用いてください。
   史料ノートそのものを引用する場合は、references に挙げた DOI を用いてください。
+  史料ノート・文書・構造化したデータは CC BY 4.0（LICENSE）、検査のスクリプトは MIT（LICENSE-CODE）です。
+  license の欄は、文書とデータだけに掛かります。
+  海軍公報そのものには掛からず、公報の著作権法上の扱いはここでは決めていません。
+  このリポジトリが引き、または引用を確かめるために置いている他人の文は、CC BY 4.0 でも MIT でも許諾しておらず、それぞれの権利者のものです。
 type: dataset
 authors:
   - family-names: Nemoto
