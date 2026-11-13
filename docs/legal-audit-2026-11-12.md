@@ -115,6 +115,36 @@ GitHub Pages が枝から頁を配るときに GitHub が動かす仕事と、De
 
 弁護士は、この節を見ていません。
 
+## 2026-11-12 の続き：十一度目の見落とし
+
+読むだけの点検を、十一度目に別の手で行いました。
+上の節が見落としていたものが見つかりました。
+直した日は、日本時間で 2026-11-13 です。
+前の行は、そのとき何を確かめたかの記録なので、消していません。
+見つかったのは、Zenodo の史料ノートの記録の、作成者の所属の欄です。
+DataCite の記録は、日本時間の 2026-11-13 8 時 43 分に api.datacite.org から読みました。
+読んだのは次の四つです。
+https://api.datacite.org/dois/10.5281/zenodo.18525531（史料ノートのすべての版の DOI。応答の全文の SHA-256 は `d341e1dab669cf69697e2a225437192d28bf7ae7e3e94f20feb86af9da48c923`）
+https://api.datacite.org/dois/10.5281/zenodo.18525532（版 1。`a69005818c8fe5e06793039d39faf8ffe0adf980f130d9e1d4dac6c2ae898e7e`）
+https://api.datacite.org/dois/10.5281/zenodo.22055553（版 2。`d8b54dddea8f9d73a91ae01e9684829d23f709ba51ef7166f3e8f6932ffaaaf2`）
+https://api.datacite.org/dois/10.5281/zenodo.22055709（版 3。`422690cff8e6166c732a4fc20e493aae476076df2024126c1558ab1c261f955f`）
+四つとも、作成者は一人で、その所属の欄（`data.attributes.creators[0].affiliation[0]`）は同じ値です。
+その値は、このリポジトリの `verification/check_text.py` が使わないと決めた語の表（`FORBIDDEN`）の二つ目の語と、一字一句同じです。
+値の SHA-256 は `8cd90a60fc545d0cecb6c54a0245734acb47fd9ee86060fdfc383bd6cbad25d0` です。
+語そのものは、ここに書き写していません。書けば、`verification/check_text.py` がこの記録を止めるためです。
+同じ語は、凍結した史料ノートの PDF（`pdf/naval-gazette-entry-otani-tsune.pdf`）の扉の著者の行にも印字されています。pypdf 6.19.0 で一頁目から読んで、確かめました。
+欄は Zenodo の運営者のアカウントにあり、作業環境から触れません。
+同じ記録は、cpsbvbng26-dotcom の同じ見出しの節にもあります。
+
+| 箇所 | 法令と条 | 要件 | 事実 | 判定 | 対応 |
+| --- | --- | --- | --- | --- | --- |
+| Zenodo の史料ノートの四つの記録（`10.5281/zenodo.18525531`・`10.5281/zenodo.18525532`・`10.5281/zenodo.22055553`・`10.5281/zenodo.22055709`）の、作成者の所属の欄 | なし（CLAUDE.md の決めごと 6、自称の肩書きを書かない） | 運営者の名で出ている欄が、使わないと決めた語を名乗らないこと | 四つとも、所属の欄が使わないと決めた語の英訳と同じ値です（上に引いた SHA-256）。同じ語は、凍結した PDF の扉にも印字されています。欄は運営者の Zenodo のアカウントにあり、作業環境から触れません | 表現 | 欄は書き換えていません。作業環境から触れないためです。残る項目として、欄の所在と値の SHA-256 をここに引きました。cpsbvbng26-dotcom の `check_ecosystem.js` の 12r が、この記録の四つの所在と SHA-256 を見て、SHA-256 が `verification/check_text.py` の表の語と合うことを確かめます。2026-11-13 に Claude が決めました。触れられないものを、触れられないまま記録に残すためです |
+| README、CITATION.cff、.zenodo.json、data/README.md | なし（CLAUDE.md の決めごと 6） | 同じ | どれも作成者の所属を書かず、その語を書いていません。`verification/check_text.py` が、このリポジトリのどのファイルでもその語を止めています | 問題なし | そのままにしました |
+
+この表の判定は、表現 1、問題なし 1 です。
+
+弁護士は、この節を見ていません。
+
 ## 調べた法令
 
 - GitHub の利用規約（I 節）と GitHub の追加製品の規約（Actions の節。2026-11-13 に `github/site-policy` から直に取り寄せた）
