@@ -55,6 +55,15 @@
     利用者のアカウントでしか触れないもの（Zenodo・OSF・SSRN・ORCID・Wikidata・GitHub の設定など）で
     Claude に触れられないことは、触れられないという事実だけを書き、誰にも振らない。
     利用者が自分から手順を求めたときだけ、手順を書く。2026-11-12 に利用者が決めた。
+17. **issue の中身を言語モデルに渡すのは、本人の同意がある題と本文だけにする。**
+    免責事項（cpsbvbng26-dotcom の `DISCLAIMER.md`「issue の中身と言語モデル」）は、運営者のほかの人が開いた
+    issue の題と本文が Claude（Anthropic、米国）に渡ることを、個人情報保護法第 28 条の外国にある第三者への提供として扱い、
+    誤りの知らせの様式（`error-report.yml`）の必須の欄で同意を求める。様式の札は多くのリポジトリに無いので、札では見分けない。
+    issue を読むときは、`search_issues` に同意の欄の英語の文
+    （"I consent to the operator giving the title and text of this issue to Claude"）を引用符で囲んで渡し、出てきた issue の
+    題と本文だけを読む。本文に印の付いた同意の行（`- [X]`）が無ければ、それ以上使わない。
+    `list_issues` で一覧を取らない（本文も返る）。コメントは読まない。メールの中身は扱わない。
+    利用者が開いた issue は、この限りではない。2026-11-13 に Claude が決めた。
 
 ## 環境について
 

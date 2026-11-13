@@ -48,3 +48,13 @@ body:
         - 機械の検査 / Automated check
     validations:
       required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: 言語モデルに渡ること / Use of a language model
+      description: |
+        運営者は、これらのリポジトリの作業を Claude Code で行います。その作業のあいだ、この issue の題と本文は、Anthropic（米国）の言語モデル Claude に渡ることがあります。運営者は、これを個人情報保護法第 28 条の外国にある第三者への提供として扱います。米国の制度と Anthropic の措置は、[免責事項](https://github.com/cpsbvbng26-dotcom/cpsbvbng26-dotcom/blob/main/DISCLAIMER.md)の「issue の中身と言語モデル」の節にあります。同意は、いつでも撤回できます。同意しないときは、免責事項にあるメールの宛先で知らせることもできます。メールの中身は、言語モデルに渡しません。
+        The operator works on these repositories with Claude Code. During that work, the title and text of this issue may be given to Claude, the language model of Anthropic (United States). The operator treats this as a provision of personal data to a third party in a foreign country under Article 28 of Japan's Act on the Protection of Personal Information. The system of the United States and Anthropic's measures are in the section "Issues and the language model" of the [disclaimer](https://github.com/cpsbvbng26-dotcom/cpsbvbng26-dotcom/blob/main/DISCLAIMER.en.md). The consent can be withdrawn at any time. Without it, the error can be reported by email instead, to the address the disclaimer gives. The content of an email is not given to a language model.
+      options:
+        - label: この issue の題と本文を、運営者が Claude（Anthropic、米国）に渡すことに同意します。 / I consent to the operator giving the title and text of this issue to Claude (Anthropic, United States).
+          required: true
