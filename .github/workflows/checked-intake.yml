@@ -1,10 +1,12 @@
 name: checked-intake
 # Checked intake (突き合わせの受付). A claim in an issue is accepted only when it can be checked against a source that the
-# claimant does not write at the moment of claiming; a claim that fails, or cannot be checked, is closed with a fixed
-# comment. The forms and what each checks are in .github/checked-intake/config.json; the script is
+# claimant does not write at the moment of claiming; a claim that fails, or cannot be checked, is turned away with a label
+# and a fixed comment. The forms and what each checks are in .github/checked-intake/config.json; the script is
 # .github/checked-intake/verify.js, the same file in every repository that uses it.
-# Never closed: an issue with a label that config.json names under neverClose, and an issue that reads as a request the
-# law requires the operator to receive (removal, rights, personal data, statements about a person, consent).
+# It never closes or locks an issue (2026-11-15): every issue stays open for a person. An issue that reads as a request
+# the law requires the operator to receive also gets the label "needs a person".
+# Left alone: an issue with a label that config.json names under neverClose, and an event sent by the owner of the
+# repository (github.event.sender, from the event; the script checks the same in the event file).
 # On a pull request or a push that changes the script, its self-test runs instead.
 on:
   issues:
@@ -36,7 +38,7 @@ jobs:
       - run: node .github/checked-intake/verify.js --test
       - run: node .github/checked-intake/verify.js --check
   intake:
-    if: github.event_name == 'issues' && !github.event.issue.pull_request
+    if: github.event_name == 'issues' && !github.event.issue.pull_request && github.event.sender.login != github.repository_owner
     name: Check the claim of the issue
     runs-on: ubuntu-latest
     steps:

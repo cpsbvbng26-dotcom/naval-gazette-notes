@@ -26,15 +26,19 @@
  *             (DataCite, then Crossref) lists that iD for a creator. Reads pub.orcid.org, api.datacite.org and
  *             api.crossref.org only, and only in a repository whose config.json has a form of this kind.
  *
- * A claim that fails is closed as not planned, with a fixed comment in Japanese and English that names the failed check
- * and how to open a new issue. A claim that passes gets the label "quote verified" or "identity verified"; a person still
- * decides what it means. When the check itself cannot run (pdftotext missing, a service not answering), the issue stays
- * open with the label "not checked".
+ * It never closes an issue and never locks one (2026-11-15). A claim that fails gets the label "not verified" and a fixed
+ * comment in Japanese and English that names the failed check, says that the claim is not accepted, and says how to submit
+ * it again; the issue stays open for a person. A claim that passes gets the label "quote verified" or "identity verified";
+ * a person still decides what it means. When the check itself cannot run (pdftotext missing, a service not answering),
+ * the label is "not checked".
+ * No list of words can tell every request that the law requires the operator to receive or consider (removal, rights,
+ * personal data, statements about a person, consent and its withdrawal, in any language) from an error report, and so
+ * nothing is closed. An issue whose title or text matches LEGAL below also gets the label "needs a person": a signal for
+ * the person who reads it, never relied on.
  *
- * Never closed: an issue with a label in config "neverClose", and an issue whose title or text reads as a request that
- * the law requires the operator to receive or consider (LEGAL below: removal or takedown, rights, personal data,
- * statements about a person, consent and its withdrawal). The check still runs on such an issue and labels it, but the
- * issue stays open with the label "needs a person".
+ * Left alone: an issue with a label in config "neverClose" (the name is kept from before 2026-11-15; it now means the
+ * labels on which the intake does nothing at all, and always holds "needs a person"), and any event whose sender is the
+ * owner of the repository, read from the event file (event.sender, event.repository.owner), never from the issue text.
  *
  * It acts only on an issue opened on or after config "from" (a day in Japan time), so that a rule announced ahead takes
  * effect on its day; an earlier issue is left as it is.
@@ -55,8 +59,9 @@ const LABELS = { quote: 'quote verified', identity: 'identity verified', notFoun
 
 /* ------------------------------------------------------------ requests that are never turned away */
 
-/* The words of a request that the law requires the operator to receive or consider. A match never closes the issue.
- * The list is wide on purpose: a word that also occurs in an ordinary report only costs a reading by a person. */
+/* The words of a request that the law requires the operator to receive or consider. A match adds the label "needs a
+ * person"; nothing is closed in any case. The list is wide on purpose: a word that also occurs in an ordinary report only
+ * costs a reading by a person. It cannot be complete (other phrasings, other languages), and nothing relies on it. */
 const LEGAL = new RegExp([
   '削除', '取り下げ', '取下げ', '撤回', '開示', '利用停止', '消去', '第三者提供', '提供の停止', '個人情報', '個人データ', '保有個人データ',
   '権利侵害', '侵害', '著作権', '名誉', '信用', 'プライバシー', '肖像', '発信者情報', '送信防止', '同意', '苦情', '辞退',
@@ -64,6 +69,9 @@ const LEGAL = new RegExp([
   'take ?down', 'remov', 'delet', 'eras', 'infring', 'copyright', 'dmca', 'privacy', 'personal (data|information)',
   'data protection', 'gdpr', '\\bappi\\b', 'defam', 'libel', 'slander', 'reputation', 'rectif', 'objection', 'object to',
   'opt.?out', 'consent', 'withdraw', 'complain', 'access request', 'subject access',
+  /* Added on 2026-11-15, from phrasings that a read-only pass found unmatched. */
+  '誹謗', '中傷', '非公開', '載せな[いく]', '消して', '住所', '電話番号', 'メールアドレス', '連絡先', '経歴', '事実と(違|異な)', '利用目的', '本人',
+  'take (this|it|that|them|these|my \\w+) ?down', 'unpublish', 'hide', 'misspel', 'surname', 'my (e-?mail|address|phone|details|info)',
 ].join('|'), 'i');
 /* Pure: the words a person wrote, without the fixed lines of the form (its headings and its ticked boxes): the boxes
  * themselves speak of consent and personal data, and would otherwise make every report read as a request. */
@@ -271,7 +279,7 @@ async function checkIdentity(form, spec, login, look) {
 /* ------------------------------------------------------------ the comments (fixed texts) */
 
 const HEAD = '**突き合わせの受付 / Checked intake**';
-const AGAIN = '直した内容で、新しい issue を開けます。この issue は、閉じたまま残ります。\nA new issue can be opened with this corrected. This issue stays closed.';
+const AGAIN = 'この申し立ては、確かめに通らなかったので、受け付けていません。この issue の本文を直すと、もう一度確かめます。直した内容で、新しい issue を開くこともできます。issue は閉じず、人が読みます。\nThis claim did not pass the check, so it is not accepted. Editing the text of this issue runs the check again; a new issue can also be opened with this corrected. The issue is not closed; a person reads it.';
 const TEXTS = {
   found: '示した所に、引いた語がそのとおりにありました。誤りかどうかは、人が読んで決めます。\nThe quoted words occur at the location given, as quoted. Whether this is an error is decided by a person who reads it.',
   location: '「どこか」の欄の所を、このリポジトリのファイル、配っている頁、このリポジトリが写しを持つ DOI のどれとしても見つけられませんでした。ファイルの名（例 `README.md`）、頁の URL、DOI のどれか一つを、欄の初めに書きます。\nThe location could not be found as a file of this repository, a page that it serves, or a DOI of which it holds a copy. The location field begins with one of these: a file name (such as `README.md`), the URL of a page, or a DOI.',
@@ -284,24 +292,24 @@ const TEXTS = {
   link: 'その ORCID iD の公開の記録が、この issue を開いた GitHub のアカウントにつながっていません。ORCID の記録の「Websites & social links」に `https://github.com/<アカウント名>` を足せば、つながります。\nThe public ORCID record of that iD does not link the GitHub account that opened this issue. Adding `https://github.com/<username>` under "Websites & social links" in the ORCID record links it.',
   doi: 'その DOI の登録情報を、DataCite からも Crossref からも読めませんでした。\nThe metadata of that DOI could not be read from DataCite or Crossref.',
   creator: 'その DOI の登録情報は、この ORCID iD を作成者に挙げていません。自分の作品の DOI だけを書きます。\nThe metadata of that DOI does not list this ORCID iD for a creator. Only a DOI of one\'s own work is given.',
-  unread: '確かめる先が答えず、いまは確かめられませんでした。issue は開いたままにし、人が読みます。\nThe service that the check reads did not answer, so it could not be checked now. The issue stays open for a person.',
-  notChecked: 'PDF を読む道具が動かず、いまは確かめられませんでした。issue は開いたままにし、人が読みます。\nThe tool that reads the PDF did not run, so it could not be checked now. The issue stays open for a person.',
-  person: 'この issue は、法令が受け取ることを求める求め（削除、権利、個人の情報、人についての記述、同意とその撤回）を含むかもしれません。突き合わせの受付は、この issue を閉じません。人が読んで扱います。\nThis issue may contain a request that the law requires the operator to receive (removal, rights, personal data, statements about a person, consent and its withdrawal). The checked intake does not close it. A person reads and handles it.',
+  unread: '確かめる先が答えず、いまは確かめられませんでした。人が読みます。\nThe service that the check reads did not answer, so it could not be checked now. A person reads this issue.',
+  notChecked: 'PDF を読む道具が動かず、いまは確かめられませんでした。人が読みます。\nThe tool that reads the PDF did not run, so it could not be checked now. A person reads this issue.',
+  person: 'この issue は、法令が受け取ることを求める求め（削除、権利、個人の情報、人についての記述、同意とその撤回）を含むかもしれないので、ラベル「needs a person」を付けました。人が読んで扱います。\nThis issue may contain a request that the law requires the operator to receive (removal, rights, personal data, statements about a person, consent and its withdrawal), so the label "needs a person" is added. A person reads and handles it.',
 };
 /* Pure: the comment for a result. Nothing of the issue is written in it. */
 function commentFor(result, { legal = false } = {}) {
   const lines = [MARK, HEAD, '', TEXTS[result.reason]];
-  if (result.ok === false && !legal) lines.push('', AGAIN);
+  if (result.ok === false) lines.push('', AGAIN);
   if (legal) lines.push('', TEXTS.person);
   return lines.join('\n') + '\n';
 }
-/* Pure: what to do with the issue: { close, add: [labels], remove: [labels] }. A legal request is never closed. */
+/* Pure: the labels to add and to take off: { add, remove }. There is nothing else to do: no issue is closed or locked. */
 function actionFor(kind, result, { legal = false } = {}) {
   const pass = kind === 'identity' ? LABELS.identity : LABELS.quote;
   const all = [LABELS.quote, LABELS.identity, LABELS.notFound, LABELS.notChecked];
   const add = result.ok === true ? [pass] : result.ok === false ? [LABELS.notFound] : [LABELS.notChecked];
   if (legal) add.push(LABELS.person);
-  return { close: result.ok === false && !legal, add, remove: all.filter((l) => !add.includes(l)) };
+  return { add, remove: all.filter((l) => !add.includes(l)) };
 }
 
 /* Pure: whether a form's claim is one that the intake checks. A form spec may limit it to some answers of one field
@@ -320,8 +328,8 @@ function jstDay(t) {
   const ms = Date.parse(t);
   return Number.isNaN(ms) ? null : new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 10);
 }
-/* Pure: the form spec that an issue belongs to, or null (not an issue of the checked intake, one never closed, or one
- * opened before config "from"). */
+/* Pure: the form spec that an issue belongs to, or null (not an issue of the checked intake, one with a label that the
+ * intake leaves alone, or one opened before config "from"). */
 function specFor(issue, conf) {
   if (conf.from && !(jstDay(issue && issue.created_at) >= conf.from)) return null;
   const names = ((issue && issue.labels) || []).map((l) => (typeof l === 'string' ? l : l.name));
@@ -357,10 +365,16 @@ async function github(method, url, body) {
 
 /* One run on one event. Everything outside is passed in: the event, the configuration, the root of the files, the GitHub
  * call (gh), the look-up for identity (look) and the log (say), so that the self-test runs it on events it makes. */
+/* Pure: whether the event was sent by the owner of the repository (from the event file, never from the issue text). */
+function byOwner(event) {
+  const s = event && event.sender && event.sender.login, o = event && event.repository && event.repository.owner && event.repository.owner.login;
+  return !!s && !!o && String(s).toLowerCase() === String(o).toLowerCase();
+}
 async function run({ event, conf, root = ROOT, gh, look = lookUp, say = console.log, pdftotext = defaultPdftotext }) {
   const issue = event.issue || {};
   const n = issue.number;
   if (!Number.isInteger(n) || issue.pull_request || !['opened', 'edited', 'reopened'].includes(event.action) || issue.state === 'closed') return say('nothing to check');
+  if (byOwner(event)) return say('issue ' + n + ': sent by the owner of the repository, left alone');
   const spec = specFor(issue, conf);
   if (!spec) return say('issue ' + n + ': not a form of the checked intake');
   const form = parseForm(issue.body);
@@ -383,8 +397,7 @@ async function run({ event, conf, root = ROOT, gh, look = lookUp, say = console.
   else await gh('POST', '/issues/' + n + '/comments', { body });
   for (const l of act.remove) await gh('DELETE', '/issues/' + n + '/labels/' + encodeURIComponent(l));
   await gh('POST', '/issues/' + n + '/labels', { labels: act.add });
-  if (act.close) await gh('PATCH', '/issues/' + n, { state: 'closed', state_reason: 'not_planned' });
-  say('issue ' + n + ': ' + (spec.kind === 'identity' ? 'identity' : 'quote') + ' ' + (result.ok === true ? 'verified' : result.ok === false ? 'not verified' : 'not checked') + (act.close ? ', closed' : '') + (legal ? ', left for a person' : ''));
+  say('issue ' + n + ': ' + (spec.kind === 'identity' ? 'identity' : 'quote') + ' ' + (result.ok === true ? 'verified' : result.ok === false ? 'not verified' : 'not checked') + (legal ? ', needs a person' : ''));
 }
 
 async function main() {
@@ -398,9 +411,10 @@ function configProblems(conf, root = ROOT) {
   const bad = [];
   if (!Array.isArray(conf.forms) || !conf.forms.length) bad.push('no forms');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(conf.from || '')) bad.push('from: not a day');
+  if (!(conf.neverClose || []).includes(LABELS.person)) bad.push('neverClose: no "' + LABELS.person + '"');
   for (const f of conf.forms || []) {
     if (!['quote', 'identity'].includes(f.kind)) bad.push('form ' + f.label + ': unknown kind');
-    if ((conf.neverClose || []).includes(f.label)) bad.push('form ' + f.label + ': a label that is never closed');
+    if ((conf.neverClose || []).includes(f.label)) bad.push('form ' + f.label + ': a label that the intake leaves alone');
     if (LEGAL.test(f.label)) bad.push('form ' + f.label + ': the label of a request');
     if (f.when && (!Array.isArray(f.when.field) || !Array.isArray(f.when.in) || !f.when.in.length)) bad.push('form ' + f.label + ': a "when" without a field and answers');
     const need = f.kind === 'identity' ? ['orcid', 'doi'] : ['where', 'quote'];
@@ -414,6 +428,12 @@ function configProblems(conf, root = ROOT) {
   for (const p of conf.pages || []) if (!/^https:\/\/[^/]+\/(.*\/)?$/.test(p.url)) bad.push('page ' + p.url + ': not an https address ending in /');
   if (conf.blob && !/^https:\/\/github\.com\/[^/]+\/[^/]+$/.test(conf.blob)) bad.push('blob: not a repository on github.com');
   return bad;
+}
+
+/* Pure: the ways in a piece of code to close or lock an issue (2026-11-15: the checked intake does neither). Also read by
+ * cpsbvbng26-dotcom's cross-repository check. */
+function closeOrLock(code) {
+  return [/\bstate\s*:/, /state_reason/, /\block(ed|_reason)?\b/i, /['"]PUT['"]/].filter((re) => re.test(String(code || ''))).map(String);
 }
 
 /* ------------------------------------------------------------ --test: every branch, on fixtures made here */
@@ -452,7 +472,7 @@ async function selfTest() {
     blob: 'https://github.com/example/fixture',
     dois: { '10.5555/fixture.1000001': ['pdf/paper.pdf'] },
     ids: [['^(\\d{4}\\.\\d{4})$', 'site/abs/{1}.html']],
-    neverClose: ['removal'],
+    neverClose: ['removal', 'needs a person'],
     from: '2026-12-01',
   };
   const results = [];
@@ -490,44 +510,53 @@ async function selfTest() {
   t('identity: a wrong check digit', (await I('0000-0002-1825-0098', '', 'alice')) === 'orcid' && (await I('not an id', '', 'alice')) === 'orcid');
   t('identity: another account', (await I(ID, '', 'mallory')) === 'link' && (await I('0000-0001-5109-3700', '', 'alice')) === 'link');
   t('identity: a DOI of someone else, and one that cannot be read', (await I(ID, '10.5555/other', 'alice')) === 'creator' && (await I(ID, '10.5555/none', 'alice')) === 'doi');
-  t('identity: a service that does not answer is not checked, never closed', (await I(ID, '', 'alice', down)) === 'unread' && actionFor('identity', { ok: null, reason: 'unread' }).close === false);
+  t('identity: a service that does not answer is not checked', (await I(ID, '', 'alice', down)) === 'unread' && actionFor('identity', { ok: null, reason: 'unread' }).add.join() === LABELS.notChecked);
   t('identity: a link that is not exactly the account', !linksGithub(['https://github.com/alice/repo', 'https://gist.github.com/alice', 'https://github.com.example/alice'], 'alice') && linksGithub(['https://www.github.com/alice/'], 'alice'));
   /* what is done, and what is written */
-  t('a pass labels and never closes; a fail closes; not checked stays open', actionFor('quote', { ok: true }).close === false && actionFor('quote', { ok: true }).add[0] === LABELS.quote
-    && actionFor('quote', { ok: false, reason: 'absent' }).close === true && actionFor('quote', { ok: null, reason: 'notChecked' }).close === false);
-  t('a legal request is never closed, and is left for a person', actionFor('quote', { ok: false, reason: 'absent' }, { legal: true }).close === false && actionFor('quote', { ok: false, reason: 'absent' }, { legal: true }).add.includes(LABELS.person));
+  const acts = [true, false, null].flatMap((ok) => [false, true].flatMap((legal) => ['quote', 'identity'].map((k) => actionFor(k, { ok, reason: 'absent' }, { legal }))));
+  t('what is done is only labels, whatever the result: a pass, a fail and not checked each get their label, and nothing else', acts.every((a) => Object.keys(a).join() === 'add,remove')
+    && actionFor('quote', { ok: true }).add.join() === LABELS.quote && actionFor('quote', { ok: false, reason: 'absent' }).add.join() === LABELS.notFound && actionFor('quote', { ok: null, reason: 'notChecked' }).add.join() === LABELS.notChecked);
+  t('a request also gets the label "needs a person"', actionFor('quote', { ok: false, reason: 'absent' }, { legal: true }).add.includes(LABELS.person) && !actionFor('quote', { ok: false, reason: 'absent' }).add.includes(LABELS.person));
   t('the ticked boxes and headings of a form are not read as a request', !legalRequest('### Use of a language model\n\n- [X] I consent to the operator giving the title and text of this issue to Claude.\n- [X] This issue contains no personal data.\n') && legalRequest('### What it says\n\nI consent to nothing; remove it.\n'));
-  t('the words of a legal request are seen in Japanese and English', ['この記載の削除を求めます', '個人情報の開示を求めます', '私の氏名の綴りが違います', 'My name is misspelt on the record', '名誉を傷つける', '同意を撤回します', 'Please take down this', 'remove my name', 'my personal data', 'copyright infringement', 'I withdraw my consent', 'GDPR erasure'].every(legalRequest)
+  t('the words of a legal request are seen in Japanese and English, including the phrasings found unmatched on 2026-11-15', ['この記載の削除を求めます', '個人情報の開示を求めます', '私の氏名の綴りが違います', 'My name is misspelt on the record', '名誉を傷つける', '同意を撤回します', 'Please take down this', 'remove my name', 'my personal data', 'copyright infringement', 'I withdraw my consent', 'GDPR erasure',
+    'この記載は誹謗中傷なので消してください', '私の経歴が事実と違うので訂正してください', '私の住所が載っているので非公開にしてください', '載せないでください', 'Please take this down', 'My email address is on this page, please hide it', 'The author list misspells my surname', 'unpublish my info', '利用目的を教えてください'].every(legalRequest)
     && !legalRequest('第二節の式の符号が逆です。The sign in section 2 is wrong.'));
   const on = '2026-11-30T15:00:00Z', before = '2026-11-30T14:59:59Z';
-  t('an issue with a label never closed is not taken, and one without a form label is not taken', specFor({ labels: [{ name: 'erratum' }, { name: 'removal' }], created_at: on }, conf) === null && specFor({ labels: [{ name: 'question' }], created_at: on }, conf) === null && specFor({ labels: ['erratum'], created_at: on }, conf) === spec);
+  t('an issue with a label that the intake leaves alone is not taken, and one without a form label is not taken', specFor({ labels: [{ name: 'erratum' }, { name: 'removal' }], created_at: on }, conf) === null && specFor({ labels: [{ name: 'question' }], created_at: on }, conf) === null && specFor({ labels: ['erratum'], created_at: on }, conf) === spec);
   t('an issue opened before the day of "from" (Japan time) is not taken', specFor({ labels: ['erratum'], created_at: before }, conf) === null && specFor({ labels: ['erratum'] }, conf) === null);
   const limited = Object.assign({}, spec, { when: { field: ['Kind'], in: ['The title is wrong'] } });
   t('a form limited to some kinds takes only those, and leaves any other kind to a person', applies(limited, parseForm('### Kind\n\nThe title is wrong\n')) && !applies(limited, parseForm('### Kind\n\nSomething else\n')) && !applies(limited, parseForm('')) && applies(spec, parseForm('')));
   const planted = 'PLANTED-WORDS-OF-THE-CLAIMANT';
   const r1 = q('ERRATA.md', planted + ' long enough');
   t('a comment never repeats what was written', Object.keys(TEXTS).every((k) => !commentFor({ ok: false, reason: k }).includes(planted)) && !commentFor(r1).includes(planted) && commentFor(r1).startsWith(MARK));
-  t('a comment of a fail says how to open a new issue; one of a legal request does not say it is closed', commentFor({ ok: false, reason: 'absent' }).includes(AGAIN) && !commentFor({ ok: false, reason: 'absent' }, { legal: true }).includes(AGAIN));
-  t('the configuration of the fixture has no problem, and a broken one has', configProblems(conf, root).length === 0
+  t('a comment of a fail says that the claim is not accepted, how to submit it again, and that the issue is not closed, for a request too; no comment says that an issue is closed or locked',
+    commentFor({ ok: false, reason: 'absent' }).includes(AGAIN) && commentFor({ ok: false, reason: 'absent' }, { legal: true }).includes(AGAIN) && commentFor({ ok: false, reason: 'absent' }, { legal: true }).includes(TEXTS.person)
+    && /受け付けていません/.test(AGAIN) && /not accepted/.test(AGAIN) && /閉じず/.test(AGAIN) && /not closed/.test(AGAIN)
+    && Object.values(TEXTS).every((x) => !/閉じ(ます|ました|たまま|て)|ロック|stays closed|is closed|closes|locked/i.test(x)) && !commentFor({ ok: true, reason: 'found' }).includes(AGAIN));
+  t('the configuration of the fixture has no problem, and a broken one has (one without "needs a person" among them)', configProblems(conf, root).length === 0
     && configProblems(Object.assign({}, conf, { forms: [{ label: 'removal', kind: 'quote', where: ['W'], quote: ['Q'] }] }), root).length > 0
+    && configProblems(Object.assign({}, conf, { neverClose: ['removal'] }), root).length > 0
     && configProblems(Object.assign({}, conf, { dois: { '10.5555/fixture.2': ['pdf/paper.pdf'] } }), root).length > 0
     && configProblems(Object.assign({}, conf, { dois: { '10.5555/fixture.1000001': ['pdf/none.pdf'] } }), root).length > 0);
   /* Whole runs on events made here: what is called on GitHub, and what is logged. */
-  const ev = (o) => ({ action: o.action || 'opened', issue: Object.assign({ number: 7, state: 'open', created_at: on, title: 'PLANTED-TITLE', user: { login: 'alice' }, labels: [{ name: 'erratum' }] }, o.issue || {}) });
+  const ev = (o) => Object.assign({ action: o.action || 'opened', sender: { login: 'alice' }, repository: { owner: { login: 'example' } }, issue: Object.assign({ number: 7, state: 'open', created_at: on, title: 'PLANTED-TITLE', user: { login: 'alice' }, labels: [{ name: 'erratum' }] }, o.issue || {}) }, o.sender ? { sender: o.sender } : {});
+  /* The only calls that a run may make on GitHub: read the comments, write or change its own comment, take off and add labels. */
+  const ALLOWED = [['GET', /^\/issues\/\d+\/comments\?per_page=100$/], ['PATCH', /^\/issues\/comments\/\d+$/], ['POST', /^\/issues\/\d+\/comments$/], ['DELETE', /^\/issues\/\d+\/labels\/[^/]+$/], ['POST', /^\/issues\/\d+\/labels$/]];
+  const allowed = (c) => ALLOWED.some(([m, re]) => c.method === m && re.test(c.url)) && !(c.body && ('state' in c.body || 'state_reason' in c.body || 'lock_reason' in c.body || 'locked' in c.body));
   const runOn = async (e, lk = look) => {
     const calls = [], logs = [];
     const gh = async (method, url, body) => { calls.push({ method, url, body }); return method === 'GET' ? [] : {}; };
     await run({ event: e, conf, root, gh, look: lk, say: (x) => logs.push(String(x)) });
     const text = JSON.stringify(calls) + logs.join('\n');
-    return { calls, logs, closed: calls.some((c) => c.method === 'PATCH' && c.url === '/issues/7' && c.body.state === 'closed'), labels: (calls.find((c) => c.method === 'POST' && /\/labels$/.test(c.url)) || { body: { labels: [] } }).body.labels, leak: /PLANTED/.test(text) };
+    return { calls, logs, closed: calls.some((c) => !allowed(c)), labels: (calls.find((c) => c.method === 'POST' && /\/labels$/.test(c.url)) || { body: { labels: [] } }).body.labels, leak: /PLANTED/.test(text) };
   };
   const bodyOf = (where, quote, extra = '') => '### Where\n\n' + where + '\n\n### What it says\n\n' + quote + '\n\n### What it should say\n\nPLANTED-BODY ' + extra + '\n';
   const e1 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } }));
-  t('an event whose words are not there: a fixed comment, the label "not verified", closed, and nothing of the issue in the calls or the log', e1.closed && e1.labels.includes(LABELS.notFound) && !e1.leak && e1.calls.some((c) => c.method === 'POST' && /\/comments$/.test(c.url)));
+  t('an event whose words are not there: a fixed comment, the label "not verified", not closed, and nothing of the issue in the calls or the log', !e1.closed && e1.labels.includes(LABELS.notFound) && !e1.leak && e1.calls.some((c) => c.method === 'POST' && /\/comments$/.test(c.url) && c.body.body.includes(AGAIN)));
   const e2 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', '第二節の式は、収束すると書いてある。') } }));
   t('an event whose words are there: the label "quote verified", not closed', !e2.closed && e2.labels.includes(LABELS.quote) && !e2.leak);
   const e3 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there', 'Please remove my personal data from this page.') } }));
-  t('an event that reads as a request is not closed even when its words are not there, and is left for a person', !e3.closed && e3.labels.includes(LABELS.person) && !e3.leak);
+  t('an event that reads as a request also gets the label "needs a person"', !e3.closed && e3.labels.includes(LABELS.person) && e3.labels.includes(LABELS.notFound) && !e3.leak);
   const quiet = await Promise.all([
     runOn(ev({ issue: { created_at: before, body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
     runOn(ev({ issue: { labels: [{ name: 'erratum' }, { name: 'removal' }], body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
@@ -535,12 +564,21 @@ async function selfTest() {
     runOn(ev({ action: 'closed', issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
     runOn(ev({ issue: { state: 'closed', body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
     runOn(ev({ issue: { pull_request: {}, body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ issue: { labels: [{ name: 'erratum' }, { name: LABELS.person }], body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ action: 'reopened', sender: { login: 'Example' }, issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ action: 'edited', sender: { login: 'example' }, issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
   ]);
-  t('no call on GitHub for an event before the day, with a label never closed, without a form label, of another action, on a closed issue, or on a pull request', quiet.every((r) => r.calls.length === 0 && !r.leak));
+  t('no call on GitHub for an event before the day, with a label left alone ("removal", "needs a person"), without a form label, of another action, on a closed issue, on a pull request, or sent by the owner of the repository (reopened or edited)', quiet.every((r) => r.calls.length === 0 && !r.leak)
+    && byOwner({ sender: { login: 'Example' }, repository: { owner: { login: 'example' } } }) && !byOwner({ sender: { login: 'alice' }, repository: { owner: { login: 'example' } } }) && !byOwner({ repository: { owner: { login: 'example' } } }) && !byOwner({}));
   const e4 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'mallory' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### Your DOI (optional)\n\n_No response_\n\n### What happened\n\nPLANTED\n' } }));
   const e5 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'alice' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### Your DOI (optional)\n\n10.5555/own\n\n### What happened\n\nPLANTED\n' } }));
   const e6 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'alice' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### What happened\n\nPLANTED\n' } }), down);
-  t('identity events: another account is closed, the own iD and DOI are labelled "identity verified", a service down leaves it open as not checked', e4.closed && e5.labels.includes(LABELS.identity) && !e5.closed && !e6.closed && e6.labels.includes(LABELS.notChecked) && ![e4, e5, e6].some((r) => r.leak));
+  t('identity events: another account is labelled "not verified" and not closed, the own iD and DOI are labelled "identity verified", a service down is labelled not checked', !e4.closed && e4.labels.includes(LABELS.notFound) && e5.labels.includes(LABELS.identity) && !e5.closed && !e6.closed && e6.labels.includes(LABELS.notChecked) && ![e4, e5, e6].some((r) => r.leak));
+  t('every call that a run made is one of the five allowed (comments and labels), and a call that closes or locks would be caught', [e1, e2, e3, e4, e5, e6].every((r) => r.calls.length > 0 && r.calls.every(allowed))
+    && !allowed({ method: 'PATCH', url: '/issues/7', body: { state: 'closed', state_reason: 'not_planned' } }) && !allowed({ method: 'PUT', url: '/issues/7/lock', body: { lock_reason: 'resolved' } }) && !allowed({ method: 'POST', url: '/issues/7/comments', body: { body: 'x', state: 'closed' } }));
+  /* The code itself, without its notes, this self-test and closeOrLock's own patterns: no call that closes or locks an issue. */
+  const code = fs.readFileSync(__filename, 'utf8').split('function closeOrLock')[0].replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  t('the code has no way to close or lock an issue: no "state", "state_reason", "lock" or PUT in it', closeOrLock(code).length === 0 && closeOrLock("gh('PATCH', '/issues/' + n, { state: 'closed' })").length > 0 && closeOrLock("gh('PUT', '/issues/' + n + '/lock')").length > 0);
   fs.rmSync(root, { recursive: true, force: true });
   for (const [name, ok] of results) console.log((ok ? '  OK    ' : '  FAIL  ') + name);
   const failed = results.filter((r) => !r[1]).length;
@@ -548,7 +586,7 @@ async function selfTest() {
   return failed === 0;
 }
 
-module.exports = { run, applies, jstDay, MARK, LABELS, LEGAL, ownWords, legalRequest, parseForm, field, normalise, quoteOf, htmlText, markdownText, readings, resolveLocation, checkQuote, orcidOk, linksGithub, orcidUrls, creatorIds, checkIdentity, TEXTS, AGAIN, commentFor, actionFor, specFor, loadConf, configProblems, fixturePdf, selfTest, QUOTE_MIN, QUOTE_MAX };
+module.exports = { run, byOwner, closeOrLock, applies, jstDay, MARK, LABELS, LEGAL, ownWords, legalRequest, parseForm, field, normalise, quoteOf, htmlText, markdownText, readings, resolveLocation, checkQuote, orcidOk, linksGithub, orcidUrls, creatorIds, checkIdentity, TEXTS, AGAIN, commentFor, actionFor, specFor, loadConf, configProblems, fixturePdf, selfTest, QUOTE_MIN, QUOTE_MAX };
 
 if (require.main === module) {
   const arg = process.argv[2];
