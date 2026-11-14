@@ -355,36 +355,41 @@ async function github(method, url, body) {
   return r.status === 204 || r.status === 404 ? null : r.json();
 }
 
-async function main() {
-  const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+/* One run on one event. Everything outside is passed in: the event, the configuration, the root of the files, the GitHub
+ * call (gh), the look-up for identity (look) and the log (say), so that the self-test runs it on events it makes. */
+async function run({ event, conf, root = ROOT, gh, look = lookUp, say = console.log, pdftotext = defaultPdftotext }) {
   const issue = event.issue || {};
   const n = issue.number;
-  if (!Number.isInteger(n) || issue.pull_request || !['opened', 'edited', 'reopened'].includes(event.action) || issue.state === 'closed') return console.log('nothing to check');
-  const conf = loadConf();
+  if (!Number.isInteger(n) || issue.pull_request || !['opened', 'edited', 'reopened'].includes(event.action) || issue.state === 'closed') return say('nothing to check');
   const spec = specFor(issue, conf);
-  if (!spec) return console.log('issue ' + n + ': not a form of the checked intake');
+  if (!spec) return say('issue ' + n + ': not a form of the checked intake');
   const form = parseForm(issue.body);
-  if (!applies(spec, form)) return console.log('issue ' + n + ': a kind that the checked intake leaves to a person');
+  if (!applies(spec, form)) return say('issue ' + n + ': a kind that the checked intake leaves to a person');
   const legal = legalRequest(issue.title) || legalRequest(issue.body);
   let result;
   try {
     result = spec.kind === 'identity'
-      ? await checkIdentity(form, spec, (issue.user && issue.user.login) || '', lookUp)
-      : checkQuote(form, spec, conf);
+      ? await checkIdentity(form, spec, (issue.user && issue.user.login) || '', look)
+      : checkQuote(form, spec, conf, root, pdftotext);
   } catch (e) {
     if (!e.notChecked) throw e;
     result = { ok: null, reason: 'notChecked' };
   }
   const act = actionFor(spec.kind, result, { legal });
   const body = commentFor(result, { legal });
-  const comments = (await github('GET', '/issues/' + n + '/comments?per_page=100')) || [];
+  const comments = (await gh('GET', '/issues/' + n + '/comments?per_page=100')) || [];
   const mine = comments.find((c) => c.user && c.user.type === 'Bot' && String(c.body || '').startsWith(MARK));
-  if (mine) await github('PATCH', '/issues/comments/' + mine.id, { body });
-  else await github('POST', '/issues/' + n + '/comments', { body });
-  for (const l of act.remove) await github('DELETE', '/issues/' + n + '/labels/' + encodeURIComponent(l));
-  await github('POST', '/issues/' + n + '/labels', { labels: act.add });
-  if (act.close) await github('PATCH', '/issues/' + n, { state: 'closed', state_reason: 'not_planned' });
-  console.log('issue ' + n + ': ' + (spec.kind === 'identity' ? 'identity' : 'quote') + ' ' + (result.ok === true ? 'verified' : result.ok === false ? 'not verified' : 'not checked') + (act.close ? ', closed' : '') + (legal ? ', left for a person' : ''));
+  if (mine) await gh('PATCH', '/issues/comments/' + mine.id, { body });
+  else await gh('POST', '/issues/' + n + '/comments', { body });
+  for (const l of act.remove) await gh('DELETE', '/issues/' + n + '/labels/' + encodeURIComponent(l));
+  await gh('POST', '/issues/' + n + '/labels', { labels: act.add });
+  if (act.close) await gh('PATCH', '/issues/' + n, { state: 'closed', state_reason: 'not_planned' });
+  say('issue ' + n + ': ' + (spec.kind === 'identity' ? 'identity' : 'quote') + ' ' + (result.ok === true ? 'verified' : result.ok === false ? 'not verified' : 'not checked') + (act.close ? ', closed' : '') + (legal ? ', left for a person' : ''));
+}
+
+async function main() {
+  const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+  await run({ event, conf: loadConf(), gh: github });
 }
 
 /* ------------------------------------------------------------ --check: config.json against the repository */
@@ -507,6 +512,35 @@ async function selfTest() {
     && configProblems(Object.assign({}, conf, { forms: [{ label: 'removal', kind: 'quote', where: ['W'], quote: ['Q'] }] }), root).length > 0
     && configProblems(Object.assign({}, conf, { dois: { '10.5555/fixture.2': ['pdf/paper.pdf'] } }), root).length > 0
     && configProblems(Object.assign({}, conf, { dois: { '10.5555/fixture.1000001': ['pdf/none.pdf'] } }), root).length > 0);
+  /* Whole runs on events made here: what is called on GitHub, and what is logged. */
+  const ev = (o) => ({ action: o.action || 'opened', issue: Object.assign({ number: 7, state: 'open', created_at: on, title: 'PLANTED-TITLE', user: { login: 'alice' }, labels: [{ name: 'erratum' }] }, o.issue || {}) });
+  const runOn = async (e, lk = look) => {
+    const calls = [], logs = [];
+    const gh = async (method, url, body) => { calls.push({ method, url, body }); return method === 'GET' ? [] : {}; };
+    await run({ event: e, conf, root, gh, look: lk, say: (x) => logs.push(String(x)) });
+    const text = JSON.stringify(calls) + logs.join('\n');
+    return { calls, logs, closed: calls.some((c) => c.method === 'PATCH' && c.url === '/issues/7' && c.body.state === 'closed'), labels: (calls.find((c) => c.method === 'POST' && /\/labels$/.test(c.url)) || { body: { labels: [] } }).body.labels, leak: /PLANTED/.test(text) };
+  };
+  const bodyOf = (where, quote, extra = '') => '### Where\n\n' + where + '\n\n### What it says\n\n' + quote + '\n\n### What it should say\n\nPLANTED-BODY ' + extra + '\n';
+  const e1 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } }));
+  t('an event whose words are not there: a fixed comment, the label "not verified", closed, and nothing of the issue in the calls or the log', e1.closed && e1.labels.includes(LABELS.notFound) && !e1.leak && e1.calls.some((c) => c.method === 'POST' && /\/comments$/.test(c.url)));
+  const e2 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', '第二節の式は、収束すると書いてある。') } }));
+  t('an event whose words are there: the label "quote verified", not closed', !e2.closed && e2.labels.includes(LABELS.quote) && !e2.leak);
+  const e3 = await runOn(ev({ issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there', 'Please remove my personal data from this page.') } }));
+  t('an event that reads as a request is not closed even when its words are not there, and is left for a person', !e3.closed && e3.labels.includes(LABELS.person) && !e3.leak);
+  const quiet = await Promise.all([
+    runOn(ev({ issue: { created_at: before, body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ issue: { labels: [{ name: 'erratum' }, { name: 'removal' }], body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ issue: { labels: [{ name: 'question' }], body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ action: 'closed', issue: { body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ issue: { state: 'closed', body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+    runOn(ev({ issue: { pull_request: {}, body: bodyOf('ERRATA.md', 'PLANTED words that are not there') } })),
+  ]);
+  t('no call on GitHub for an event before the day, with a label never closed, without a form label, of another action, on a closed issue, or on a pull request', quiet.every((r) => r.calls.length === 0 && !r.leak));
+  const e4 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'mallory' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### Your DOI (optional)\n\n_No response_\n\n### What happened\n\nPLANTED\n' } }));
+  const e5 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'alice' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### Your DOI (optional)\n\n10.5555/own\n\n### What happened\n\nPLANTED\n' } }));
+  const e6 = await runOn(ev({ issue: { labels: [{ name: 'bug' }], user: { login: 'alice' }, body: '### Your ORCID iD\n\n' + ID + '\n\n### What happened\n\nPLANTED\n' } }), down);
+  t('identity events: another account is closed, the own iD and DOI are labelled "identity verified", a service down leaves it open as not checked', e4.closed && e5.labels.includes(LABELS.identity) && !e5.closed && !e6.closed && e6.labels.includes(LABELS.notChecked) && ![e4, e5, e6].some((r) => r.leak));
   fs.rmSync(root, { recursive: true, force: true });
   for (const [name, ok] of results) console.log((ok ? '  OK    ' : '  FAIL  ') + name);
   const failed = results.filter((r) => !r[1]).length;
@@ -514,7 +548,7 @@ async function selfTest() {
   return failed === 0;
 }
 
-module.exports = { applies, jstDay, MARK, LABELS, LEGAL, ownWords, legalRequest, parseForm, field, normalise, quoteOf, htmlText, markdownText, readings, resolveLocation, checkQuote, orcidOk, linksGithub, orcidUrls, creatorIds, checkIdentity, TEXTS, AGAIN, commentFor, actionFor, specFor, loadConf, configProblems, fixturePdf, selfTest, QUOTE_MIN, QUOTE_MAX };
+module.exports = { run, applies, jstDay, MARK, LABELS, LEGAL, ownWords, legalRequest, parseForm, field, normalise, quoteOf, htmlText, markdownText, readings, resolveLocation, checkQuote, orcidOk, linksGithub, orcidUrls, creatorIds, checkIdentity, TEXTS, AGAIN, commentFor, actionFor, specFor, loadConf, configProblems, fixturePdf, selfTest, QUOTE_MIN, QUOTE_MAX };
 
 if (require.main === module) {
   const arg = process.argv[2];
