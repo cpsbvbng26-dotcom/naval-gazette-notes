@@ -10,18 +10,21 @@ body:
         安全の問題は、この様式ではなく SECURITY.md の入口で受けます。
         Japanese or English. Issues are public, so personal data and unpublished manuscripts are kept out.
         Security issues go through SECURITY.md, not this form.
+
+        2026-12-01 から、この様式は「突き合わせの受付」で確かめます。「どこか」の所に「書いてあること」の語がそのとおりにあれば、ラベル「quote verified」が付きます。見つからなければ、決まった文のコメントを付けて閉じます。誤りかどうかは、人が読んで決めます。削除・権利・個人の情報・人についての記述・同意の撤回を求める issue は、自動では閉じません。
+        From 2026-12-01, this form is checked by the checked intake. If the words under "What it says" occur at the location under "Where", the label "quote verified" is added. If they do not, the issue is closed with a fixed comment. Whether it is an error is decided by a person who reads it. An issue that asks for removal, or concerns rights, personal data, statements about a person or the withdrawal of consent, is never closed automatically.
   - type: input
     id: where
     attributes:
       label: どこか / Where
-      description: ファイル、頁の URL、論文の節や頁、DOI のどれか / A file, a page URL, a section or page of a paper, or a DOI
+      description: 欄の初めに一つだけ書きます。ファイルの名（例 `README.md`）、このリポジトリの頁かファイルの URL、またはこのリポジトリが写しを持つ論文の DOI。頁や節は、その後に書けます（確かめるのは文書の全体です） / Begin with one of these: a file name (such as `README.md`), the URL of a page or a file of this repository, or the DOI of a paper of which this repository holds a copy. A page or section may follow (the whole document is checked)
     validations:
       required: true
   - type: textarea
     id: printed
     attributes:
       label: 書いてあること / What it says
-      description: 書いてあるとおりに写します / Copied as printed
+      description: 書いてあるとおりに一字ずつ写します。空白の違いは見ません。空白を除いて 6 文字以上 / Copied as printed, character by character; differences of white space are ignored. At least 6 characters, not counting spaces
     validations:
       required: true
   - type: textarea
