@@ -3,8 +3,9 @@
 # 外部のパッケージ。pypdf は正誤表の監査と data/check.py が紙面を読むのに使う。
 packages = ["pypdf"]
 
-# 書き込みの権限。「ワークフローのファイル名:権限」。無い。
-writes = []
+# 書き込みの権限。「ワークフローのファイル名:権限」。
+# 2026-11-14：突き合わせの受付（checked-intake.yml）は、誤りの知らせにラベルを付けて閉じるので、issue に書く。13 のリポジトリで同じファイル。
+writes = ["checked-intake.yml:issues"]
 
 # 要旨。.zenodo.json の description に、日本語と英語を続けて置いている。
 [abstract]
