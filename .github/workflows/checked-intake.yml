@@ -1,0 +1,50 @@
+name: checked-intake
+# Checked intake (突き合わせの受付). A claim in an issue is accepted only when it can be checked against a source that the
+# claimant does not write at the moment of claiming; a claim that fails, or cannot be checked, is closed with a fixed
+# comment. The forms and what each checks are in .github/checked-intake/config.json; the script is
+# .github/checked-intake/verify.js, the same file in every repository that uses it.
+# Never closed: an issue with a label that config.json names under neverClose, and an issue that reads as a request the
+# law requires the operator to receive (removal, rights, personal data, statements about a person, consent).
+# On a pull request or a push that changes the script, its self-test runs instead.
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request:
+    paths: ['.github/checked-intake/**', '.github/workflows/checked-intake.yml']
+  push:
+    branches: [main]
+    paths: ['.github/checked-intake/**', '.github/workflows/checked-intake.yml']
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: checked-intake-${{ github.event.issue.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    if: github.event_name != 'issues'
+    name: The self-test of the checked intake
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: sudo apt-get install -y -qq --no-install-recommends poppler-utils || echo 'poppler-utils could not be installed'
+      - run: node .github/checked-intake/verify.js --test
+      - run: node .github/checked-intake/verify.js --check
+  intake:
+    if: github.event_name == 'issues' && !github.event.issue.pull_request
+    name: Check the claim of the issue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # pdftotext reads a PDF. If it cannot be installed, a quotation from a PDF is left open as not checked.
+      - run: sudo apt-get install -y -qq --no-install-recommends poppler-utils || echo 'poppler-utils could not be installed'
+      # The script reads the issue from the event file (GITHUB_EVENT_PATH), never from the environment or the shell: the run's log prints a step's environment, and would keep the issue text after the issue is emptied.
+      - run: node .github/checked-intake/verify.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
