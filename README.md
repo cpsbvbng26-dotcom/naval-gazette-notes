@@ -361,7 +361,8 @@ Claude Code（Anthropic）を用いて作成し、実行しました。**デー�
 このリポジトリには、根本卓哉の[運営理念・声明](https://cpsbvbng26-dotcom.vercel.app/notes/mission.html)が掛かります。
 声明は、運営の考え方を述べたものです。それ自体で、運営者にも、読む人その他の誰にも、権利や義務を生じさせません。
 適用されるのは、このリポジトリのライセンスと、[免責事項](https://github.com/cpsbvbng26-dotcom/cpsbvbng26-dotcom/blob/main/DISCLAIMER.md)が挙げるリポジトリではその免責事項です。声明とそれらが食い違うときは、それらが優先します。
-運営者は、現在、弁護士その他の専門家に依頼していません。声明と免責事項は、弁護士の確認を受けていません。
+この節で「現在」と書いたことは、声明の頁の最終更新の日の時点のことです。
+運営者は、現在、弁護士その他の専門家に依頼していません。声明と免責事項は、現在、弁護士の確認を受けていません。
 紛争が生じたときは、運営者は、必要に応じて弁護士その他の専門家に相談したうえで、日本の法令（国際的な事件の裁判管轄と準拠法についての定めを含む）に沿って対応します。これは、誰かに対する警告ではありません。
 全文は、[サイトの頁](https://cpsbvbng26-dotcom.vercel.app/notes/mission.html)と、cpsbvbng26-dotcom の [docs/mission.md](https://github.com/cpsbvbng26-dotcom/cpsbvbng26-dotcom/blob/main/docs/mission.md) にあります。
 <!-- 声明:ここまで -->
