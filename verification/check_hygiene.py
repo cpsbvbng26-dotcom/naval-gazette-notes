@@ -3,7 +3,7 @@
 
     python3 verification/check_hygiene.py
 
-見るのは七つである。
+見るのは八つである。
 
   依存     外部のパッケージは、hygiene.toml の packages に挙げたものだけを使う。
            import / require、pip install / npm install、package.json・pyproject.toml・
@@ -18,6 +18,8 @@
   数       ほかの検査が拾っていなかった散文の数を、数え直すか、もとの数と突き合わせる。
   規約     .github/workflows/ のどのファイルも、法令の点検の記録（docs/legal-audit-2026-11-12.md）の
            「八度目の見落とし」の表に行を持ち、GitHub の追加製品の規約の Actions の節に照らして判定してある。
+  自動化   どの仕事にも時間の上限があり、push しない仕事の checkout は鍵を残さず、書く権限か id-token を持つ
+           ワークフローの pip install は、版とハッシュを固めた一覧からだけ入れる（2026-11-15）。
 
 この七つは、ほかのリポジトリと同じ一本のスクリプトで見る。違うのは hygiene.toml だけである。
 このファイルは各リポジトリで一字一句同じにしてある。直すときは全部直す。
@@ -73,6 +75,8 @@ def read(rel: str) -> str:
 with open(CONF_PATH, "rb") as f:
     CONF = tomllib.load(f)
 PACKAGES = set(CONF.get("packages", []))
+# 版とハッシュで固めた一覧にだけ現れる、許したパッケージの依存（2026-11-15）。名だけを許し、ほかでは使わない。
+TRANSITIVE = set(CONF.get("transitive", []))
 WRITES = set(CONF.get("writes", []))
 FILES = tracked()
 
@@ -144,8 +148,12 @@ for f in FILES:
             manifest.append(f + " dependencies " + ",".join(deps))
     elif re.fullmatch(r"requirements.*\.txt", base):
         for line in read(f).splitlines():
-            name = re.split(r"[<>=!~\[; ]", line.split("#")[0].strip())[0]
-            if name and name not in PACKAGES:
+            s = line.split("#")[0].strip()
+            # ハッシュの行（--hash=…）と、行を続ける \ は名ではない。
+            if not s or s.startswith("-"):
+                continue
+            name = re.split(r"[<>=!~\[; \\]", s)[0]
+            if name and name not in PACKAGES and name not in TRANSITIVE:
                 manifest.append(f + " " + name)
 ok("package.json・pyproject.toml・requirements*.txt に、許していない依存が無い", not manifest, ", ".join(manifest))
 
@@ -402,6 +410,77 @@ broken = [
 ]
 ok("壊して確かめる：新しいワークフロー・外したワークフロー・表から外した行・引いた文の一語・節の見出しのどれでも落ちる（"
    + str(sum(1 for b in broken if b)) + " / " + str(len(broken)) + "）", all(broken))
+
+# ------------------------------------------------------------------
+print("8. 自動化を固める（2026-11-15）")
+# ------------------------------------------------------------------
+# どの仕事にも時間の上限（既定は 60 分まで。長い仕事は hygiene.toml の long_jobs に「ファイル:仕事=分」で挙げる）。
+# 書く権限（contents: write）の無い仕事の checkout は、鍵を残さない（persist-credentials: false）。
+# 書く権限か id-token を持つワークフローで pip install するときは、--require-hashes と -r の一覧だけを使い、
+# その一覧のどの行も ==版 と --hash=sha256: を持つ。
+MAX_MINUTES = 60
+LONG = {k.split("=")[0]: int(k.split("=")[1]) for k in CONF.get("long_jobs", [])}
+
+
+def jobs_of(text: str) -> list[tuple[str, str]]:
+    body = text.split("\njobs:\n", 1)[1] if "\njobs:\n" in text else ""
+    out = []
+    for block in re.split(r"\n(?=  [A-Za-z0-9_-]+:\n)", "\n" + body):
+        m = re.match(r"\n?  ([A-Za-z0-9_-]+):\n", block)
+        if m:
+            out.append((m.group(1), block))
+    return out
+
+
+def automation_problems(files: dict[str, str], reqs: dict[str, str]) -> list[str]:
+    bad = []
+    for name, text in sorted(files.items()):
+        top_write = bool(re.search(r"^permissions:\n(?:  .*\n)*?  contents: write", text + "\n", re.M))
+        any_write = bool(re.search(r"^\s+[a-z-]+: write\b", text, re.M))
+        for job, block in jobs_of(text):
+            m = re.search(r"\n    timeout-minutes: (\d+)\n", block + "\n")
+            if not m or int(m.group(1)) > LONG.get(name + ":" + job, MAX_MINUTES):
+                bad.append(name + " " + job + "：時間の上限")
+            own = re.search(r"\n    permissions:\n((?:      .*\n)+)", block + "\n")
+            writes = ("contents: write" in own.group(1)) if own else top_write
+            for step in block.split("- uses: actions/checkout@")[1:]:
+                keep = not re.match(r"[^\n]*\n(?: {8}.*\n| {10}.*\n)*? {10}persist-credentials: false\n", step)
+                if keep and not writes:
+                    bad.append(name + " " + job + "：checkout が鍵を残す")
+        for m in re.finditer(r"\bpip3?\s+install\s+([^\n]+)", text):
+            words = m.group(1).split()
+            if any_write and ("--require-hashes" not in words or "-r" not in words):
+                bad.append(name + "：書く権限のあるワークフローの pip install が、ハッシュで固めた一覧を使わない")
+            if "--require-hashes" in words and "-r" in words:
+                req = words[words.index("-r") + 1]
+                body = reqs.get(req)
+                if body is None:
+                    bad.append(name + "：一覧 " + req + " が無い")
+                    continue
+                entries = re.split(r"(?<!\\)\n", body)
+                for e in entries:
+                    s = re.sub(r"#.*", "", e).strip()
+                    if not s:
+                        continue
+                    if not re.match(r"^[A-Za-z0-9._-]+==[^\s\\]+", s) or "--hash=sha256:" not in s:
+                        bad.append(req + "：版かハッシュの無い行 " + s[:30])
+    return bad
+
+
+WF_TEXT = {os.path.basename(f): read(f) for f in YML}
+REQS = {f: read(f) for f in FILES if re.fullmatch(r"requirements.*\.txt", os.path.basename(f))}
+ap = automation_problems(WF_TEXT, REQS)
+ok("どの仕事（" + str(sum(len(jobs_of(t)) for t in WF_TEXT.values())) + "）にも時間の上限があり、push しない仕事の checkout は鍵を残さず、書く権限のあるワークフローの pip install は版とハッシュで固めた一覧だけを使う", not ap, ", ".join(ap[:6]))
+first_wf = sorted(WF_TEXT)[0]
+broken_a = [
+    automation_problems({**WF_TEXT, first_wf: re.sub(r"\n    timeout-minutes: \d+\n", "\n", WF_TEXT[first_wf], count=1)}, REQS),
+    automation_problems({**WF_TEXT, first_wf: re.sub(r"\n    timeout-minutes: \d+\n", "\n    timeout-minutes: 500\n", WF_TEXT[first_wf], count=1)}, REQS),
+    automation_problems({**WF_TEXT, first_wf: WF_TEXT[first_wf].replace("          persist-credentials: false\n", "", 1)}, REQS),
+    automation_problems({**WF_TEXT, "x.yml": "permissions:\n  contents: read\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    permissions:\n      id-token: write\n    steps:\n      - run: pip install build\n"}, REQS),
+    automation_problems({**WF_TEXT, "x.yml": "permissions:\n  contents: read\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - run: pip install --require-hashes -r requirements-x.txt\n"}, {**REQS, "requirements-x.txt": "build>=1 \\\n    --hash=sha256:" + "0" * 64 + "\n"}),
+]
+ok("壊して確かめる：時間の上限を外す・長すぎる上限・鍵を残す checkout・書く仕事のハッシュの無い pip install・版を固めない一覧のどれでも落ちる（"
+   + str(sum(1 for b in broken_a if b)) + " / " + str(len(broken_a)) + "）", all(broken_a))
 
 print("\n" + "-" * 56)
 if failed:
