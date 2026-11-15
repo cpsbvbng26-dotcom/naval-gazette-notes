@@ -72,11 +72,18 @@ const LEGAL = new RegExp([
   /* Added on 2026-11-15, from phrasings that a read-only pass found unmatched. */
   '誹謗', '中傷', '非公開', '載せな[いく]', '消して', '住所', '電話番号', 'メールアドレス', '連絡先', '経歴', '事実と(違|異な)', '利用目的', '本人',
   'take (this|it|that|them|these|my \\w+) ?down', 'unpublish', 'hide', 'misspel', 'surname', 'my (e-?mail|address|phone|details|info)',
+  /* Added on 2026-11-15, from a second read-only pass: Japanese, German and French phrasings. */
+  '下げて', '取り除', 'löschen', 'lösch', 'entfern', 'datenschutz', 'urheberrecht', 'persönlich', 'supprim', 'retire', 'données personnelles', "droit d.auteur", 'vie privée', 'diffamat',
 ].join('|'), 'i');
+/* Pure: the text as it is matched: NFKC (full-width letters and digits become plain ones), without zero-width characters and
+ * marks of direction. A list of words cannot tell every request, so this is a signal only (2026-11-15). */
+const HIDDEN = /[\u200B-\u200F\u202A-\u202E\u2060\u2066-\u2069\uFEFF\u00AD]/g;
+const matchable = (s) => String(s || '').normalize('NFKC').replace(HIDDEN, '');
 /* Pure: the words a person wrote, without the fixed lines of the form (its headings and its ticked boxes): the boxes
  * themselves speak of consent and personal data, and would otherwise make every report read as a request. */
 const ownWords = (body) => String(body || '').replace(/\r\n/g, '\n').split('\n').filter((l) => !/^### /.test(l) && !/^- \[[ xX]\] /.test(l)).join('\n');
-const legalRequest = (text) => LEGAL.test(ownWords(text));
+/* The words are also matched with every space taken out, so that a word split by spaces (削 除, ta ke down) is found too. */
+const legalRequest = (text) => { const w = matchable(ownWords(text)); return LEGAL.test(w) || LEGAL.test(w.replace(/\s+/g, '')); };
 
 /* ------------------------------------------------------------ the issue */
 

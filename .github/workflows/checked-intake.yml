@@ -8,6 +8,10 @@ name: checked-intake
 # Left alone: an issue with a label that config.json names under neverClose, and an event sent by the owner of the
 # repository (github.event.sender, from the event; the script checks the same in the event file).
 # On a pull request or a push that changes the script, its self-test runs instead.
+# One check per issue at a time (2026-11-15): a newer event of the same issue cancels the older run, and the newer run
+# checks the issue as it is then, so a cancelled run loses nothing. The concurrency is set on the checking job only, and a
+# run whose checking job does not run (an event of the owner, a pull request, a push) gets a group of its own, so that it
+# never takes the place of, or cancels, a run that checks.
 on:
   issues:
     types: [opened, edited, reopened]
@@ -19,14 +23,12 @@ on:
 permissions:
   contents: read
   issues: write
-concurrency:
-  group: checked-intake-${{ github.event.issue.number || github.ref }}
-  cancel-in-progress: true
 jobs:
   test:
     if: github.event_name != 'issues'
     name: The self-test of the checked intake
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -41,6 +43,10 @@ jobs:
     if: github.event_name == 'issues' && !github.event.issue.pull_request && github.event.sender.login != github.repository_owner
     name: Check the claim of the issue
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: ${{ (github.event_name == 'issues' && github.event.sender.login != github.repository_owner) && format('checked-intake-issue-{0}', github.event.issue.number) || format('checked-intake-run-{0}', github.run_id) }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
