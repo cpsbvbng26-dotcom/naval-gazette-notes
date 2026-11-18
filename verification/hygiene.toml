@@ -5,7 +5,8 @@ packages = ["pypdf"]
 
 # 書き込みの権限。「ワークフローのファイル名:権限」。
 # 2026-11-14：突き合わせの受付（checked-intake.yml）は、誤りの知らせにラベルとコメントを付けるので、issue に書く（2026-11-15 から閉じない）。13 のリポジトリで同じファイル。
-writes = ["checked-intake.yml:issues"]
+# 2026-11-19：本文の空の issue に答える仕事（empty-issue.yml）は、ラベルとコメントを付けるので、issue に書く。閉じず、鍵も掛けず、消さない。cpsbvbng26-dotcom の check_ecosystem.js（13f）が中身を固めている。
+writes = ["checked-intake.yml:issues", "empty-issue.yml:issues"]
 
 # 要旨。.zenodo.json の description に、日本語と英語を続けて置いている。
 [abstract]
