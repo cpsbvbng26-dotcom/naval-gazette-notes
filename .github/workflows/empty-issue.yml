@@ -1,0 +1,114 @@
+name: empty-issue
+# An issue opened with an empty body (2026-11-18). The issue forms do not show in some mobile apps and browsers, and an
+# issue can then be opened with a title and no body. This workflow answers such an issue once: the label "empty body" and
+# one fixed comment, in Japanese and English, that links the forms of the repository (/issues/new/choose).
+# It closes nothing, locks nothing and deletes nothing. The title may still carry a request (removal, rights, personal data,
+# a name, the withdrawal of a consent), no list of words can tell one, and every issue stays open for a person.
+# Deleting an issue: GitHub's documentation ("Deleting an issue") says that in a repository owned by a personal account,
+# only that account can delete issues. The token of a run is not that account.
+# It acts only on an open issue whose body is empty or only white space, that has no label and no comment, that is not a
+# pull request, and that was not opened by a bot, by the owner of the repository, or by a member or collaborator.
+# When an issue is opened, it waits 10 minutes, reads the issue again, and acts only if the issue still qualifies.
+# Once a week, it acts on the open issues that qualify and were opened more than 24 hours before.
+# When the body of an issue with the label is filled in later, it takes the label off.
+# The same file is in every repository that uses it. cpsbvbng26-dotcom keeps the canonical copy, and its
+# verification/check_ecosystem.js compares the copies byte by byte and runs the script below on issues made up for it.
+# The script reads the number of the issue from the event file and the issue from the API. It writes no title and no body
+# of an issue to the log, to the environment or to a command; the log names issue numbers only.
+on:
+  issues:
+    types: [opened, edited]
+  schedule:
+    - cron: '29 1 * * 5'
+permissions:
+  issues: write
+jobs:
+  answer:
+    name: Answer an issue opened with an empty body
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - if: github.event_name == 'issues' && github.event.action == 'opened'
+        run: sleep 600
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node - <<'SCRIPT'
+          'use strict';
+          const fs = require('fs');
+          const LABEL = 'empty body';
+          const DAY = 24 * 60 * 60 * 1000;
+          const STAFF = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+          const repo = process.env.GITHUB_REPOSITORY;
+          const server = process.env.GITHUB_SERVER_URL || 'https://github.com';
+          const forms = server + '/' + repo + '/issues/new/choose';
+          const COMMENT = [
+            'この issue は、本文が空のまま開かれました。',
+            '一部のスマートフォンのアプリやブラウザでは、issue の様式が表示されないことがあります。',
+            '中身は、この issue の本文を編集して書き足すか、様式から新しい issue を開いて書くことができます。',
+            '様式: ' + forms,
+            'この issue は閉じず、鍵も掛けません。題に書かれたことも、人が読みます。',
+            '',
+            'This issue was opened with an empty body.',
+            'The issue forms may not show in some mobile apps and browsers.',
+            'What the issue is about can be added by editing its body, or by opening a new issue from a form.',
+            'Forms: ' + forms,
+            'This issue is not closed or locked. A person also reads its title.',
+          ].join('\n');
+          async function gh(method, url, body) {
+            const r = await fetch('https://api.github.com/repos/' + repo + url, {
+              method,
+              headers: { authorization: 'Bearer ' + process.env.GITHUB_TOKEN, accept: 'application/vnd.github+json',
+                'x-github-api-version': '2022-11-28', 'user-agent': 'empty-issue', 'content-type': 'application/json' },
+              body: body === undefined ? undefined : JSON.stringify(body),
+            });
+            if (method === 'POST' && url === '/labels' && r.status === 422) return null;
+            if (!r.ok) throw new Error(method + ' ' + url.split('?')[0] + ' answered ' + r.status);
+            return r.status === 204 ? null : r.json();
+          }
+          const empty = (i) => String(i.body == null ? '' : i.body).trim() === '';
+          const qualifies = (i, age) => i.state === 'open' && !i.pull_request && empty(i)
+            && (i.labels || []).length === 0 && Number(i.comments || 0) === 0
+            && !(i.user && i.user.type === 'Bot') && !STAFF.includes(i.author_association)
+            && Date.now() - Date.parse(i.created_at) >= age;
+          async function answer(n) {
+            await gh('POST', '/labels', { name: LABEL, color: 'ededed', description: 'Opened with an empty body (.github/workflows/empty-issue.yml)' });
+            await gh('POST', '/issues/' + n + '/labels', { labels: [LABEL] });
+            await gh('POST', '/issues/' + n + '/comments', { body: COMMENT });
+            console.log('#' + n + ': labelled and answered.');
+          }
+          (async () => {
+            const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+            if (process.env.GITHUB_EVENT_NAME === 'issues') {
+              const n = Number(event.issue && event.issue.number);
+              if (!Number.isInteger(n) || n < 1) throw new Error('no issue number in the event');
+              const i = await gh('GET', '/issues/' + n);
+              if (event.action === 'edited') {
+                if (!empty(i) && (i.labels || []).some((l) => l.name === LABEL)) {
+                  await gh('DELETE', '/issues/' + n + '/labels/' + encodeURIComponent(LABEL));
+                  console.log('#' + n + ': the body was filled in, and the label was taken off.');
+                } else console.log('#' + n + ': nothing to do.');
+                return;
+              }
+              if (qualifies(i, 0)) await answer(n);
+              else console.log('#' + n + ': left alone.');
+              return;
+            }
+            let seen = 0, answered = 0;
+            for (let page = 1; ; page++) {
+              const list = await gh('GET', '/issues?state=open&per_page=100&page=' + page);
+              if (!Array.isArray(list)) throw new Error('the list of issues is not a list');
+              for (const x of list) {
+                seen++;
+                if (!qualifies(x, DAY)) continue;
+                const i = await gh('GET', '/issues/' + x.number);
+                if (qualifies(i, DAY)) { await answer(i.number); answered++; }
+              }
+              if (list.length < 100) break;
+            }
+            console.log(seen + ' open issues and pull requests read, ' + answered + ' answered.');
+          })().catch((e) => { console.error(e.message); process.exit(1); });
+          SCRIPT
