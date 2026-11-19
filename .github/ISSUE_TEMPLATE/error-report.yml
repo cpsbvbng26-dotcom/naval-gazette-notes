@@ -17,7 +17,7 @@ body:
     id: where
     attributes:
       label: どこか / Where
-      description: 欄の初めに一つだけ書きます。ファイルの名（例 `README.md`）、このリポジトリの頁かファイルの URL、またはこのリポジトリが写しを持つ論文の DOI。頁や節は、その後に書けます（確かめるのは文書の全体です） / Begin with one of these: a file name (such as `README.md`), the URL of a page or a file of this repository, or the DOI of a paper of which this repository holds a copy. A page or section may follow (the whole document is checked)
+      description: '欄の初めに一つだけ書きます。ファイルの名（例 `README.md`）、このリポジトリの頁かファイルの URL、またはこのリポジトリが写しを持つ論文の DOI。頁や節は、その後に書けます（確かめるのは文書の全体です） / Begin with one of these: a file name (such as `README.md`), the URL of a page or a file of this repository, or the DOI of a paper of which this repository holds a copy. A page or section may follow (the whole document is checked)'
     validations:
       required: true
   - type: textarea
