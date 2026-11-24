@@ -58,6 +58,9 @@ references:
       - type: url
         value: "https://dl.ndl.go.jp/pid/15017939"
         description: 国立国会図書館デジタルコレクション（info:ndljp/pid/15017939）
+      - type: url
+        value: "https://ndlsearch.ndl.go.jp/books/R100000039-I15017939"
+        description: 全国書誌（電子書籍編）2026-11-24 提供分の書誌（国立国会図書館サーチ、R100000039-I15017939）
     notes: Preprint. Not peer-reviewed. このリポジトリのデータは本史料ノート第3節の翻刻にもとづく。
   - type: generic
     title: 海軍公報（部内限）號外　昭和十八年九月十一日發令
