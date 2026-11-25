@@ -1,0 +1,68 @@
+name: JACAR の頁の取り寄せ
+
+# 出典表記の簿冊名と請求番号（issue #26）を確かめるための、手で起こす仕事（2026-11-25）。
+# この作業環境からは JACAR に届かないので、GitHub の実行環境から取り寄せる。
+# 取り寄せる所在は、起こすときに urls へ空白で区切って渡す。許すのは https の三つの場
+# （www.jacar.archives.go.jp・www.jacar.go.jp・www.archives.go.jp）だけで、一度に取り寄せる数に上限（max）を置き、一件ごとに 5 秒あける。
+# 転送は追わない。原資料の画像（das/image）は取り寄せない（決めごと 11）。
+# 先に robots.txt と利用の条件の頁を取り寄せて読む。目録の頁は、条件が機械での取り寄せを許すときにだけ取り寄せる。
+# 取り寄せたものは、この実行の成果物（jacar）と記録に残す。git には入れず、どこにも書かない。
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 取り寄せる所在（空白で区切る）
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    name: JACAR の頁を取り寄せる
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 取り寄せる
+        env:
+          URLS: ${{ inputs.urls }}
+        run: |
+          set -euo pipefail
+          mkdir out
+          set -f
+          max=12
+          n=0
+          for u in $URLS; do
+            n=$((n + 1))
+            if [ "$n" -gt "$max" ]; then echo "一度に取り寄せる数の上限（$max）を超えた"; exit 1; fi
+            if ! printf '%s' "$u" | grep -Eq '^https://(www\.jacar\.archives\.go\.jp|www\.jacar\.go\.jp|www\.archives\.go\.jp)/[A-Za-z0-9._~/?=&-]*$'; then
+              echo "許していない所在: $u"; exit 1
+            fi
+            case "$(printf '%s' "$u" | tr 'A-Z' 'a-z')" in *"/das/image"*) echo "原資料の画像は取り寄せない: $u"; exit 1 ;; esac
+            if [ "$n" -gt 1 ]; then sleep 5; fi
+            : > "out/$n.body"
+            : > "out/$n.headers"
+            code=$(curl --proto '=https' --max-redirs 0 -sS --max-time 60 -o "out/$n.body" -D "out/$n.headers" -w '%{http_code}' "$u" || true)
+            printf '%s\n' "$u" > "out/$n.url"
+            printf '%s\n' "$code" > "out/$n.status"
+          done
+          set +f
+          date -u +%Y-%m-%dT%H:%M:%SZ > out/fetched
+          cd out
+          sha256sum -- *.body > SHA256SUMS
+          echo "取り寄せた時刻（UTC）: $(cat fetched)"
+          for i in $(seq 1 "$n"); do
+            echo "== $i $(cat "$i.url") $(cat "$i.status") $(sha256sum < "$i.body" | cut -d' ' -f1) $(wc -c < "$i.body")"
+            echo "-- headers"
+            tr -d '\r' < "$i.headers"
+            echo "-- body (gzip, base64)"
+            gzip -9nc < "$i.body" | base64 -w 120
+            echo "-- end $i"
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: jacar
+          path: out/
+          retention-days: 90
+          if-no-files-found: error
