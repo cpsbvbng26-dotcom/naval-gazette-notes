@@ -3,10 +3,12 @@ name: JACAR の頁の取り寄せ
 # 出典表記の簿冊名と請求番号（issue #26）を確かめるための、手で起こす仕事（2026-11-25）。
 # この作業環境からは JACAR に届かないので、GitHub の実行環境から取り寄せる。
 # 取り寄せる所在は、起こすときに urls へ空白で区切って渡す。許すのは https の三つの場
-# （www.jacar.archives.go.jp・www.jacar.go.jp・www.archives.go.jp）だけで、一度に取り寄せる数に上限（max）を置き、一件ごとに 5 秒あける。
+# （www.jacar.archives.go.jp・www.jacar.go.jp・www.archives.go.jp）だけで、一度に取り寄せる数に上限（max）を置き、一件ごとに 30 秒あける。
+# 30 秒は、2026-11-25 に取り寄せた www.jacar.archives.go.jp の robots.txt の Crawl-delay: 30 に合わせた。それまでは 5 秒だった。
 # 転送は追わない。原資料の画像（das/image）は取り寄せない（決めごと 11）。
 # 先に robots.txt と利用の条件の頁を取り寄せて読む。目録の頁は、条件が機械での取り寄せを許すときにだけ取り寄せる。
-# 取り寄せたものは、この実行の成果物（jacar）と記録に残す。git には入れず、どこにも書かない。
+# 取り寄せたものは、この実行の成果物（jacar）と記録に残す。記録には、本文を gzip して base64 にしたものと、タグを外した文字を出す。
+# git には入れず、どこにも書かない。
 on:
   workflow_dispatch:
     inputs:
@@ -22,7 +24,7 @@ jobs:
   fetch:
     name: JACAR の頁を取り寄せる
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: 取り寄せる
         env:
@@ -40,7 +42,7 @@ jobs:
               echo "許していない所在: $u"; exit 1
             fi
             case "$(printf '%s' "$u" | tr 'A-Z' 'a-z')" in *"/das/image"*) echo "原資料の画像は取り寄せない: $u"; exit 1 ;; esac
-            if [ "$n" -gt 1 ]; then sleep 5; fi
+            if [ "$n" -gt 1 ]; then sleep 30; fi
             : > "out/$n.body"
             : > "out/$n.headers"
             code=$(curl --proto '=https' --max-redirs 0 -sS --max-time 60 -o "out/$n.body" -D "out/$n.headers" -w '%{http_code}' "$u" || true)
@@ -58,6 +60,8 @@ jobs:
             tr -d '\r' < "$i.headers"
             echo "-- body (gzip, base64)"
             gzip -9nc < "$i.body" | base64 -w 120
+            echo "-- text"
+            python3 -I -c 'import html, re, sys; t = sys.stdin.buffer.read().decode("utf-8", "replace"); t = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>|<!--.*?-->|<[^>]+>", " ", t); print(re.sub(r"\s*\n\s*", "\n", re.sub(r"[ \t\r\f\v]+", " ", html.unescape(t))).strip())' < "$i.body"
             echo "-- end $i"
           done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
