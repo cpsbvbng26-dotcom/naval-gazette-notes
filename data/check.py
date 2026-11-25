@@ -12,7 +12,7 @@
      （引き継ぐ元がない ditto は、翻刻の取りこぼしを意味する）
   6. ditto の行の階級が、直前の printed 行と同じ
   7. 論文が確定させた大谷（2603-25）の階級が、この連鎖から実際に導ける
-  8. 出典表記が、リポジトリ内の四箇所で一字一句同じ
+  8. 出典表記が、リポジトリ内の 5 箇所で一字一句同じで、簿冊名と請求番号が典拠の表と同じ
   9. 原資料のスキャン画像が混入していない
  10. README の「史料の外にあるもの」が、報道と家伝を史料と混ぜていない
  12. 種類と状態の札、CITATION.cff の type、Zenodo の関連する識別子が食い違っていない
@@ -26,7 +26,7 @@
  20. 法令の点検の記録が名乗る判定の数が、その節の表の行と合う
  11. README が名乗る項目数が、実際に確かめた数と合う（最後に数える）
 
-出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
+出典表記はアジア歴史資料センターが推奨する引用例にならった形です。同じ文字列を README・データ辞書・
 JSON・CITATION.cff に置いているので、片方だけ直すと食い違います。8 はそれを防ぎます。
 
 9 は運用上の線です。JACAR の案内では、防衛省防衛研究所提供資料の「資料画像」を出版物等に
@@ -129,11 +129,15 @@ check("大谷の行に展開された階級と一致する",
 check("したがって 海軍少佐 ではない", otani["rank_ja"] != "海軍少佐", otani["rank_ja"])
 
 print("8. 出典表記")
+# 2026-11-25 に、JACAR の目録から簿冊名と所蔵館における請求番号を補った（#26）。どちらも目録の表示のまま。
+# 簿冊名の「５月」と「海軍」のあいだは全角の空白（U+3000）。
 CITATION = ("JACAR（アジア歴史資料センター）Ref.C12070491000、"
-            "海軍公報（部内限）號外　昭和十八年九月十一日發令（防衛省防衛研究所）")
+            "海軍公報（部内限）號外　昭和十八年九月十一日發令、"
+            "昭和１９年１月．昭和１９年５月　海軍公報（部内限）号外（０法令－海軍（二復）公報－１３３）"
+            "（防衛省防衛研究所）")
 ROOT = os.path.dirname(HERE)
 
-check("JSON の source.citation が規定形式と一致する",
+check("JSON の source.citation が、決めた出典表記と一致する",
       doc["source"]["citation"] == CITATION,
       doc["source"]["citation"])
 
@@ -365,10 +369,27 @@ check("冒頭が名乗る史料の件数が、データの JSON の数と合い�
       m is not None and m.group(1) == str(len(_notes)),
       "名乗り %s / JSON %d" % (m.group(1) if m else "無い", len(_notes)))
 # 2026-11-12 の法令の点検で、JACAR の目録の頁を取り寄せた（Sophaxis の取り寄せの仕事）。
+# 2026-11-25 に、このリポジトリの取り寄せの仕事（jacar.yml）で取り寄せ直した。簿冊名の空白は全角だった。
 # 簿冊名・件名・請求番号は、目録の表示のまま書き、取り寄せた日と課題につなぐ。推奨を規定と書かない。
 check("典拠の表が、簿冊名・件名・請求番号を JACAR の目録の表示のまま書き、取り寄せた日と課題につないでいる",
-      "簿冊名「昭和１９年１月．昭和１９年５月 海軍公報（部内限）号外」、件名「４月（８）」、所蔵館における請求番号「０法令－海軍（二復）公報－１３３」（JACAR の目録の表示のまま。2026-11-12 に取り寄せた。[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text
+      "簿冊名「昭和１９年１月．昭和１９年５月　海軍公報（部内限）号外」、件名「４月（８）」、所蔵館における請求番号「０法令－海軍（二復）公報－１３３」（JACAR の目録の表示のまま。2026-11-12 に取り寄せ、2026-11-25 に取り寄せ直した。[#26](https://github.com/cpsbvbng26-dotcom/naval-gazette-notes/issues/26)）" in src_text
       and "引用例を推奨しています" in readme and "出典表記の形式を定めています" not in readme)
+# 出典表記の簿冊名と請求番号は、典拠の表に写した値と同じ（2026-11-25、#26）。片方だけ直すと落ちる。
+vol = re.search(r"簿冊名「([^」]+)」", src_text)
+call = re.search(r"所蔵館における請求番号「([^」]+)」", src_text)
+check("出典表記が、典拠の表の簿冊名と請求番号を、件名と所蔵機関名のあいだに同じ字で持つ",
+      vol is not None and call is not None
+      and CITATION.endswith("、%s（%s）（防衛省防衛研究所）" % (vol.group(1), call.group(1))),
+      "%s / %s" % (vol.group(1) if vol else "簿冊名が無い", call.group(1) if call else "請求番号が無い"))
+# 補ったので、未確認と書いた三つの注記は外した（#26 の手順 6）。戻れば落とす。
+with open(os.path.join(ROOT, "CITATION.cff"), encoding="utf-8") as fh:
+    cff_text = fh.read()
+left = [label for label, text, word in (
+    ("README の「未確認が一点ある」の囲み", readme, "> 未確認が一点ある。"),
+    ("CITATION.cff の「未確認のため未記載」", cff_text, "未確認のため未記載"),
+    ("JSON の source.citation_note の「未確認」", doc["source"]["citation_note"], "未確認"),
+) if word in text]
+check("簿冊名と整理番号を未確認とした注記が、README・CITATION.cff・JSON に残っていない", not left, " / ".join(left))
 
 print("17. 年表")
 tl = re.search(r"^## 年表\n(.*?)(?=^## )", readme, re.S | re.M)
