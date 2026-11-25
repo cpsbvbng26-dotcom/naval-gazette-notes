@@ -23,6 +23,7 @@
  17. 年表の日付が、リポジトリのほかの箇所にすでに書いてある
  18. 読む順と、存命の人を書き足さない線が、頁の冒頭にある
  19. README の「検査の結果」と CI の題の、正誤表の監査の数が、走らせた数と合う
+ 20. 法令の点検の記録が名乗る判定の数が、その節の表の行と合う
  11. README が名乗る項目数が、実際に確かめた数と合う（最後に数える）
 
 出典表記はアジア歴史資料センターの規定する形式です。同じ文字列を README・データ辞書・
@@ -429,6 +430,41 @@ said_errata = ([int(m.group(1))] if m else []) + ci
 check("README の表と CI の題の check_errata.py の数が、走らせた数と合う（pypdf が要る）",
       m is not None and len(ci) > 0 and n_errata is not None and set(said_errata) == {n_errata},
       "名乗り %s / 実際 %s %s" % (",".join(map(str, said_errata)) or "無い", n_errata, why))
+
+print("20. 法令の点検の判定の数")
+# 「この表の判定は、漏れ 2、問題なし 5 です。」のような一文が、同じ節の表の判定の欄を数えた数と合うこと。
+# 行を足したときに数だけ古くなるのを止める（2026-11-25、ワークフローの行を足したときに足した）。
+with open(os.path.join(ROOT, "docs", "legal-audit-2026-11-12.md"), encoding="utf-8") as fh:
+    audit = fh.read()
+JUDGED = ("誤り", "根拠不足", "漏れ", "表現", "問題なし")
+
+
+def judged_counts(text):
+    out = []
+    for sec in re.split(r"(?m)^(?=## )", text):
+        said = re.findall(r"この表の判定は、([^。]+) です。", sec)
+        if not said:
+            continue
+        cells = [l[2:-2].split(" | ") for l in sec.splitlines()
+                 if l.startswith("| ") and not l.startswith(("| 箇所 |", "| --- |"))]
+        real = {}
+        for c in cells:
+            if len(c) == 6 and c[4] in JUDGED:
+                real[c[4]] = real.get(c[4], 0) + 1
+        for s in said:
+            named = {}
+            for part in s.split("、"):
+                m = re.fullmatch(r"(\S+) (\d+)", part)
+                if m:
+                    named[m.group(1)] = int(m.group(2))
+            out.append((sec.splitlines()[0], named, real))
+    return out
+
+
+counted = judged_counts(audit)
+wrong = [h for h, named, real in counted if named != real]
+check("法令の点検の記録の判定の数（%d 節）が、それぞれの節の表の行を数えた数と合う" % len(counted),
+      len(counted) > 0 and not wrong, " / ".join(wrong))
 
 print("11. 名乗る項目数")
 claimed = re.search(r"(\d+) 項目を確かめます", readme)
